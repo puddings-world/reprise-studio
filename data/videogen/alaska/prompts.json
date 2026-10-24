@@ -1,0 +1,123 @@
+{
+ "style": "modern Japanese TV anime film still, cel shading, clean thin lineart, painterly background, cinematic composition, Makoto Shinkai inspired lighting, high quality",
+ "negative_image": "photo, realistic, deformed face, extra fingers, noise, grain, oversharpened, text, watermark, tears, crying, teary eyes",
+ "negative_video": "photo, realistic, flicker, deformed face, distorted eyes, melting, extra limbs, extra fingers, text, subtitles, watermark, glitch, noise, static frame, tears, crying",
+ "negative_i2v_extra": "standing up, walking out of frame, sudden movement, scene change",
+ "vars": {
+  "HE": "the anime young man from image 1 (same face, short messy black hair with fringe, narrow dark brown eyes, calm gentle expression)",
+  "COAT": "wearing his navy wool coat, cream ribbed knit sweater and grey scarf",
+  "KNIT": "wearing his cream ribbed knit sweater"
+ },
+ "character_var": "HE",
+ "framing": {
+  "close": "close-up on his face and the microphone",
+  "medium": "medium shot from the waist up, seated, the black grand piano lid behind him"
+ },
+ "perform_ref": "Redraw image 2 as an anime film still. Replace the real man in image 2 with {HE}, {COAT}. Keep exactly the pose, head angle, eyes, mouth shape, the hands holding the handheld microphone and the framing of image 2. Remove the tablet, the music stand, the earphones and all text. Background: a small dim stage, {framing}. Lighting: {light}.",
+ "perform_motion": "an anime young man in a navy coat and grey scarf sings into a handheld microphone with a quiet, melancholic sorrow in his face, brows slightly drawn together, small dim stage, black grand piano, {light}, anime cel shading",
+ "expression_edit": "Edit image 1. Keep everything exactly the same: composition, framing, pose, hands and exactly what they hold (never add an object such as a microphone), outfit, hair, lighting, colors, background and anime style, and keep his eyes open or closed exactly as they are. Only change the young man's facial expression to be more melancholic: inner ends of the eyebrows slightly raised and drawn together, heavy downcast eyelids, a quiet lonely sorrow in his face, lips gently pressed. Subtle, restrained sadness held inside: dry eyes, no tears, not crying.",
+ "face_mood": "his face stays quietly melancholic and lonely, dry eyes, restrained",
+ "shots": {
+  "S01": {
+   "keyframe": "Night sky full of stars above a frozen bay in Alaska, a thin line of icy sea at the bottom, no people.",
+   "motion": "very slow camera tilt down from the starry sky toward the frozen bay, stars twinkle softly"
+  },
+  "S03": {
+   "keyframe": "{HE}, {COAT}, stands alone on a frozen shore at night, seen from behind at medium distance, looking up at the sky, ice floes on the dark sea.",
+   "motion": "static camera, he stands still looking up, snow falls gently, his scarf moves slightly in the wind"
+  },
+  "S05": {
+   "keyframe": "Close-up side profile of {HE}, {COAT}, looking up at the night sky, snowflakes on his hair and eyelashes, sad and calm expression.",
+   "motion": "static close-up, snowflakes drift past his face, he blinks slowly, faint breath vapor"
+  },
+  "S07": {
+   "keyframe": "A small seaside town at deep night seen from a hill, snow on the roofs, warm lit windows, no people.",
+   "motion": "static wide shot, snow falls, a few lit windows slowly go dark"
+  },
+  "S08": {
+   "keyframe": "Wide shot at night: a single lit window in a dark snowy seaside town. Inside the window sits {HE}, {KNIT}, looking down at his phone, the screen light on his face, one warm desk lamp, snow outside.",
+   "motion": "static camera, very slow subtle push in. He stays seated behind the closed window, still and quiet, only his eyes move as he reads the phone, he blinks slowly. Snow falls softly outside"
+  },
+  "S10": {
+   "keyframe": "A young woman walking alone under snowy street lamps at night, seen only from behind and far away, long dark hair, beige coat. Her face is not visible.",
+   "motion": "static camera, she walks slowly away from the camera under the street lamps, snow falls"
+  },
+  "S12": {
+   "keyframe": "A trail of footprints in fresh snow leading to the door of a small house with a warm porch light at night, no people.",
+   "motion": "very slow camera glide along the footprints toward the door, snow falls"
+  },
+  "S15": {
+   "keyframe": "Wide view of an icy sea at dawn, floating ice, pale blue sky with soft pink clouds near the horizon, no people.",
+   "motion": "static wide shot, ice floes drift slowly, gentle waves, clouds move slowly"
+  },
+  "S16": {
+   "keyframe": "Memory scene in soft warm haze: {HE}, {COAT}, and a young woman with long dark hair walk side by side along a snowy shore at dawn, tiny figures in a wide shot, both seen from behind.",
+   "motion": "static wide shot, the two walk slowly side by side along the shore, soft dreamy light"
+  },
+  "S17": {
+   "keyframe": "The same snowy shore at dawn in a wide shot, only {HE}, {COAT}, stands there alone, seen from behind, small in the frame.",
+   "motion": "static wide shot, he stands still, wind blows fine snow across the beach, small waves"
+  },
+  "S19": {
+   "keyframe": "Close-up of the open empty hands of {HE}, palms up, sleeves of his navy wool coat, snow falling into his hands, his face slightly visible above, looking down.",
+   "motion": "static close-up, snowflakes land on his palms and melt, his fingers slowly close"
+  },
+  "S20": {
+   "keyframe": "Top-down view of two lines of footprints in fresh snow coming from left and right and meeting in the middle, no people.",
+   "motion": "very slow overhead camera drift, fine snow blows over the footprints"
+  },
+  "S22": {
+   "keyframe": "{HE}, {KNIT}, pushes open a window at night in his small room, cold wind blowing in, his hair and the curtains moving, snow outside.",
+   "motion": "he slowly pushes the window open, wind moves his hair and the curtains, snow swirls in"
+  },
+  "S23": {
+   "keyframe": "Inside a dark bedroom at night, a curtain lifted by the wind, snowflakes swirling gently around a person asleep in bed, only her long dark hair visible on the pillow.",
+   "motion": "static camera, the curtain billows softly, snowflakes swirl gently around the bed and fade"
+  },
+  "S25": {
+   "keyframe": "{HE}, {COAT}, running through a snowy street at night, side view, breath vapor, coat flying, determined expression, warm golden street lights.",
+   "motion": "camera tracks beside him as he runs through the snow, coat and scarf flying, snow flies"
+  },
+  "S27": {
+   "keyframe": "A young woman with long dark hair seen from behind walking into a crowd on a snowy city street at night, warm golden lights, her face is not visible.",
+   "motion": "static camera, she walks into the crowd and disappears among people, golden lights, snow falls"
+  },
+  "S30": {
+   "keyframe": "{HE}, {KNIT}, working late at a desk with a laptop and notes, desk lamp on, the window behind him showing the sky turning from night to pink dawn.",
+   "motion": "static camera, he writes notes and types quietly, the sky outside the window slowly brightens to pink"
+  },
+  "S32": {
+   "keyframe": "Dream scene: a small wooden cabin with warm glowing windows on a snowy plain at sunrise, {HE}, {COAT}, standing at the open door, warm light spilling out, a woman seen from behind waiting by the fireplace.",
+   "motion": "static camera, warm light flickers from the fireplace, smoke rises from the chimney, gentle snow"
+  },
+  "S34": {
+   "keyframe": "Far away on a snowy street a young woman walks away together with another man, both seen from behind; in the foreground {HE}, {COAT}, stands still with a gentle sad smile.",
+   "motion": "static camera, the couple walks slowly into the distance, he watches and smiles softly, snow falls"
+  },
+  "S36": {
+   "keyframe": "A vast green and violet aurora spreading across the whole night sky above a frozen bay in Alaska, floating ice, faint stars, no people.",
+   "motion": "the green and violet aurora ripples and spreads slowly across the night sky, stars twinkle, ice glitters on the frozen bay, slow upward camera tilt"
+  },
+  "S37": {
+   "keyframe": "{HE}, {COAT}, stands alone on the frozen bay under a huge green aurora, seen from behind, small in a wide shot, looking up.",
+   "motion": "static wide shot, the aurora ripples above him, he stands still looking up, snow drifts"
+  },
+  "S39": {
+   "keyframe": "{HE}, {KNIT}, in a dark room reaching to switch off a desk lamp, soft blue snow light from the window.",
+   "motion": "he slowly switches off the lamp, the room fades to dark blue lit only by the snow light from the window"
+  },
+  "S41": {
+   "keyframe": "A small seaside town at deep night seen from a hill, snow on the roofs, all windows dark, no people.",
+   "motion": "static wide shot, snow falls quietly over the dark town"
+  },
+  "S42": {
+   "keyframe": "The only lit window in a dark snowy town at night; {HE}, {KNIT}, leans against the window frame with his eyes closed.",
+   "motion": "static camera, very slow push in, he leans on the window with eyes closed, snow falls outside"
+  },
+  "S43": {
+   "keyframe": "An icy sea at night under falling snow, calm and empty, faint stars, no people.",
+   "motion": "snow falls over the icy sea, very slow camera pull back"
+  }
+ },
+ "cover": "Key visual for an anime music video: {HE}, {COAT}, stands on a vast frozen bay at night under a huge green and violet aurora, three-quarter view from the front-right, looking up at the sky with a quiet, restrained melancholy, dry eyes, light snow falling, his scarf moving in the wind. He stands in the right third of the frame; the left half is calm open sky and ice with no objects, leaving space for a title. Cinematic wide shot, deep navy and teal palette with the aurora glow on his face."
+}

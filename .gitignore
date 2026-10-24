@@ -33,3 +33,11 @@ coverage/
 
 # --- Claude Code local state ---
 .claude/settings.local.json
+
+# --- videogen: personal media and generated output stay local ---
+data/videogen/*/assets/
+data/videogen/*/work/
+data/videogen/*/.videogen-jobs/
+tools/videogen/**/__pycache__/
+tools/videogen/*.egg-info/
+tools/videogen/.venv/

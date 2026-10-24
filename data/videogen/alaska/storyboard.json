@@ -1,0 +1,751 @@
+{
+ "song": "阿拉斯加海灣",
+ "version": 1,
+ "duration": 222.8,
+ "fps": 16,
+ "character_ref": "pick from v1 0-60s",
+ "shots": [
+  {
+   "id": "S01",
+   "start": 0.0,
+   "end": 3.0,
+   "section": "intro",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "fade from black",
+   "lyrics": [
+    "上天啊"
+   ],
+   "note": "回應「上天啊」",
+   "image": "冰封的阿拉斯加海灣夜空，鏡頭從星空慢慢往下搖到海面"
+  },
+  {
+   "id": "S02",
+   "start": 3.0,
+   "end": 7.2,
+   "section": "verse1",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "難道你看不出我很愛她"
+   ],
+   "note": "第一句先讓觀眾看到他在唱",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S03",
+   "start": 7.2,
+   "end": 10.6,
+   "section": "verse1",
+   "kind": "story",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "怎麼明明相愛的兩個人"
+   ],
+   "note": "",
+   "image": "他獨自站在結冰的海邊，背對鏡頭抬頭看天"
+  },
+  {
+   "id": "S04",
+   "start": 10.6,
+   "end": 16.4,
+   "section": "verse1",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "你要拆散他們啊"
+   ],
+   "note": "「拆散」：鏡頭緩慢推近臉",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S05",
+   "start": 16.4,
+   "end": 19.2,
+   "section": "verse2",
+   "kind": "story",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "上天啊"
+   ],
+   "note": "第二次呼喚上天",
+   "image": "他仰頭的側臉特寫，雪落在頭髮和睫毛上"
+  },
+  {
+   "id": "S06",
+   "start": 19.2,
+   "end": 23.2,
+   "section": "verse2",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "你千萬不要偷偷告訴她"
+   ],
+   "note": "",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S07",
+   "start": 23.2,
+   "end": 26.6,
+   "section": "verse2",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "在無數夜深人靜的夜晚"
+   ],
+   "note": "「夜深人靜」",
+   "image": "深夜的海邊小鎮，窗戶一扇扇暗掉"
+  },
+  {
+   "id": "S08",
+   "start": 26.6,
+   "end": 31.8,
+   "section": "verse2",
+   "kind": "story",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "cut",
+   "lyrics": [
+    "有個人在想她"
+   ],
+   "note": "「有個人在想她」；S42 會回到這扇窗",
+   "image": "全鎮只剩一扇窗亮著，鏡頭推進：他坐在窗邊看著手機，螢幕光照在臉上"
+  },
+  {
+   "id": "S09",
+   "start": 31.8,
+   "end": 39.4,
+   "section": "chorus1",
+   "kind": "perform",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "light swell",
+   "lyrics": [
+    "以後的日子你要好好照顧她"
+   ],
+   "note": "副歌：暖光進場",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S10",
+   "start": 39.4,
+   "end": 43.4,
+   "section": "chorus1",
+   "kind": "image",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "cut",
+   "lyrics": [
+    "我不在她身旁你不能欺負她"
+   ],
+   "note": "「我不在她身旁」",
+   "image": "她獨自走在雪夜街燈下的背影"
+  },
+  {
+   "id": "S11",
+   "start": 43.4,
+   "end": 47.6,
+   "section": "chorus1",
+   "kind": "perform",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "cut",
+   "lyrics": [],
+   "note": "",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S12",
+   "start": 47.6,
+   "end": 51.8,
+   "section": "chorus1",
+   "kind": "image",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "別再讓人走進她心裡"
+   ],
+   "note": "「別再讓人走進她心裡」",
+   "image": "雪地上一串陌生的腳印走向她家門口"
+  },
+  {
+   "id": "S13",
+   "start": 51.8,
+   "end": 56.8,
+   "section": "chorus1",
+   "kind": "perform",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "cut",
+   "lyrics": [
+    "最後卻又離開她"
+   ],
+   "note": "「最後卻又離開她」",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S14",
+   "start": 56.8,
+   "end": 64.8,
+   "section": "chorus1",
+   "kind": "perform",
+   "light": "amber",
+   "light_prompt": "warm amber key light from the left, soft gold rim",
+   "transition_in": "cut",
+   "lyrics": [
+    "因為我不願再看她流淚啦"
+   ],
+   "note": "「流淚」：結尾閉眼，光暈",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S15",
+   "start": 64.8,
+   "end": 70.0,
+   "section": "interlude",
+   "kind": "image",
+   "light": "dawn",
+   "light_prompt": "pale blue dawn light, cyan haze",
+   "transition_in": "dissolve",
+   "lyrics": [],
+   "note": "間奏無人聲",
+   "image": "黎明的冰海遠景，浮冰緩緩漂移"
+  },
+  {
+   "id": "S16",
+   "start": 70.0,
+   "end": 75.5,
+   "section": "interlude",
+   "kind": "story",
+   "light": "dawn",
+   "light_prompt": "pale blue dawn light, cyan haze",
+   "transition_in": "dissolve",
+   "lyrics": [],
+   "note": "暖一點、柔焦，像回憶",
+   "image": "回憶：他和她並肩走在同一片海邊，兩人都很小，她只見背影"
+  },
+  {
+   "id": "S17",
+   "start": 75.5,
+   "end": 80.4,
+   "section": "interlude",
+   "kind": "story",
+   "light": "dawn",
+   "light_prompt": "pale blue dawn light, cyan haze",
+   "transition_in": "dissolve",
+   "lyrics": [],
+   "note": "和 S16 同構圖對照",
+   "image": "回到現在：同一個海邊，只剩他一個人站著"
+  },
+  {
+   "id": "S18",
+   "start": 80.4,
+   "end": 87.2,
+   "section": "verse3",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "上天啊",
+    "你是不是在偷偷看笑話"
+   ],
+   "note": "「看笑話」：略帶自嘲",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S19",
+   "start": 87.2,
+   "end": 90.6,
+   "section": "verse3",
+   "kind": "story",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "明知我還沒能力保護她"
+   ],
+   "note": "「還沒能力保護她」",
+   "image": "他低頭看著自己攤開的空手"
+  },
+  {
+   "id": "S20",
+   "start": 90.6,
+   "end": 96.4,
+   "section": "verse3",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "讓我們相遇啊"
+   ],
+   "note": "「讓我們相遇啊」",
+   "image": "雪地上兩行足跡從兩邊走來、交會"
+  },
+  {
+   "id": "S21",
+   "start": 96.4,
+   "end": 103.0,
+   "section": "verse4",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "上天啊",
+    "她最近是否不再失眠啦"
+   ],
+   "note": "",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S22",
+   "start": 103.0,
+   "end": 106.6,
+   "section": "verse4",
+   "kind": "story",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "cut",
+   "lyrics": [
+    "願世間溫情化作一縷風"
+   ],
+   "note": "「化作一縷風」",
+   "image": "他推開窗，風灌進來吹動他的頭髮"
+  },
+  {
+   "id": "S23",
+   "start": 106.6,
+   "end": 111.8,
+   "section": "verse4",
+   "kind": "image",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "代替我擁抱她"
+   ],
+   "note": "「代替我擁抱她」",
+   "image": "風帶著雪花飛過屋頂，鑽進她的窗簾，繞著床上熟睡的人（只見髮絲）"
+  },
+  {
+   "id": "S24",
+   "start": 111.8,
+   "end": 119.6,
+   "section": "chorus2",
+   "kind": "perform",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "light swell",
+   "lyrics": [
+    "以後的日子你要好好照顧她"
+   ],
+   "note": "第二次副歌比第一次更亮",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S25",
+   "start": 119.6,
+   "end": 123.6,
+   "section": "chorus2",
+   "kind": "story",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "cut",
+   "lyrics": [
+    "我不在她身旁你不能欺負她"
+   ],
+   "note": "副歌二的動能",
+   "image": "他在雪中奔跑，喘著氣"
+  },
+  {
+   "id": "S26",
+   "start": 123.6,
+   "end": 127.6,
+   "section": "chorus2",
+   "kind": "perform",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "cut",
+   "lyrics": [],
+   "note": "",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S27",
+   "start": 127.6,
+   "end": 131.8,
+   "section": "chorus2",
+   "kind": "image",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "cut",
+   "lyrics": [
+    "別再讓人走進她心裡"
+   ],
+   "note": "「別再讓人走進她心裡」",
+   "image": "她的背影走進人群，被人潮淹沒"
+  },
+  {
+   "id": "S28",
+   "start": 131.8,
+   "end": 136.4,
+   "section": "chorus2",
+   "kind": "perform",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "cut",
+   "lyrics": [
+    "最後卻又離開她"
+   ],
+   "note": "",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S29",
+   "start": 136.4,
+   "end": 143.8,
+   "section": "chorus2",
+   "kind": "perform",
+   "light": "gold",
+   "light_prompt": "bright golden backlight, light dust in the air",
+   "transition_in": "cut",
+   "lyrics": [
+    "因為我不願再看她流淚啦"
+   ],
+   "note": "結尾白光一閃轉橋段",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S30",
+   "start": 143.8,
+   "end": 147.8,
+   "section": "bridge",
+   "kind": "story",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "white flash",
+   "lyrics": [
+    "希望我的努力能夠趕上她"
+   ],
+   "note": "「努力趕上她」",
+   "image": "深夜書桌前，他專心工作，窗外天慢慢亮起"
+  },
+  {
+   "id": "S31",
+   "start": 147.8,
+   "end": 151.8,
+   "section": "bridge",
+   "kind": "perform",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "cut",
+   "lyrics": [],
+   "note": "",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S32",
+   "start": 151.8,
+   "end": 159.6,
+   "section": "bridge",
+   "kind": "story",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "有天我能給她完整的一個家"
+   ],
+   "note": "「完整的一個家」",
+   "image": "想像：雪原上亮著暖燈的小木屋，他推門進去，屋裡有人等他（她的背影）"
+  },
+  {
+   "id": "S33",
+   "start": 159.6,
+   "end": 164.4,
+   "section": "bridge",
+   "kind": "perform",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "可若你安排了別人給她"
+   ],
+   "note": "「安排了別人給她」：光轉冷",
+   "framing": "close",
+   "crop": [
+    0.26,
+    0.0,
+    0.86,
+    0.6
+   ]
+  },
+  {
+   "id": "S34",
+   "start": 164.4,
+   "end": 168.4,
+   "section": "bridge",
+   "kind": "story",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "cut",
+   "lyrics": [
+    "我會祝福她"
+   ],
+   "note": "「我會祝福她」",
+   "image": "遠處她和另一個人的身影走遠，他站在原地，輕輕笑了"
+  },
+  {
+   "id": "S35",
+   "start": 168.4,
+   "end": 178.8,
+   "section": "bridge",
+   "kind": "perform",
+   "light": "rose",
+   "light_prompt": "rose-pink sunrise light fading to cool blue",
+   "transition_in": "cut",
+   "lyrics": [
+    "上天你別管我",
+    "先讓她幸福吧"
+   ],
+   "note": "全曲高點，長音，緩慢拉遠",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S36",
+   "start": 178.8,
+   "end": 184.4,
+   "section": "break",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [],
+   "note": "情緒釋放，無人聲",
+   "image": "極光在冰海上整片鋪開"
+  },
+  {
+   "id": "S37",
+   "start": 184.4,
+   "end": 188.2,
+   "section": "verse5",
+   "kind": "story",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "cut",
+   "lyrics": [
+    "上天啊"
+   ],
+   "note": "呼應 S03",
+   "image": "他一個人站在極光下的海灣仰望"
+  },
+  {
+   "id": "S38",
+   "start": 188.2,
+   "end": 195.4,
+   "section": "verse5",
+   "kind": "perform",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "cut",
+   "lyrics": [
+    "這些晚上我對你說的話",
+    "你別不小心漏嘴告訴她"
+   ],
+   "note": "",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S39",
+   "start": 195.4,
+   "end": 201.4,
+   "section": "verse5",
+   "kind": "story",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "我怕會吵醒她"
+   ],
+   "note": "「我怕會吵醒她」",
+   "image": "他輕輕關掉自己的檯燈，房間暗下，只剩窗外雪光"
+  },
+  {
+   "id": "S40",
+   "start": 201.4,
+   "end": 208.2,
+   "section": "outro",
+   "kind": "perform",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "上天啊",
+    "你千萬不要偷偷告訴她"
+   ],
+   "note": "",
+   "framing": "medium",
+   "crop": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "id": "S41",
+   "start": 208.2,
+   "end": 212.4,
+   "section": "outro",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [
+    "在無數夜深人靜的夜晚"
+   ],
+   "note": "呼應 S07",
+   "image": "深夜的海邊小鎮，窗戶都暗了"
+  },
+  {
+   "id": "S42",
+   "start": 212.4,
+   "end": 218.0,
+   "section": "outro",
+   "kind": "story",
+   "light": "lamp",
+   "light_prompt": "dark blue night with one warm desk lamp",
+   "transition_in": "cut",
+   "lyrics": [
+    "我依舊在想她"
+   ],
+   "note": "「我依舊在想她」，呼應 S08",
+   "image": "那扇唯一亮著的窗，他靠在窗邊閉著眼"
+  },
+  {
+   "id": "S43",
+   "start": 218.0,
+   "end": 222.8,
+   "section": "outro",
+   "kind": "image",
+   "light": "night",
+   "light_prompt": "cold moonlight blue, deep navy shadows",
+   "transition_in": "dissolve",
+   "lyrics": [],
+   "note": "片尾",
+   "image": "冰海夜景，雪落下，淡出到黑"
+  }
+ ]
+}

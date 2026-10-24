@@ -1,0 +1,78 @@
+{
+ "name": "alaska",
+ "title": "阿拉斯加海灣",
+ "source_video": "assets/source.mp4",
+ "audio": "assets/source.mp4",
+ "character": "assets/character.png",
+ "lyrics_ass": "assets/lyrics.ass",
+ "crops": {
+  "close": [
+   0.16,
+   0.03,
+   0.88,
+   0.524
+  ],
+  "medium": [
+   0.0,
+   0.0,
+   1.0,
+   0.686
+  ]
+ },
+ "face_shots": [
+  "S02",
+  "S04",
+  "S06",
+  "S09",
+  "S11",
+  "S13",
+  "S14",
+  "S18",
+  "S21",
+  "S24",
+  "S26",
+  "S28",
+  "S29",
+  "S31",
+  "S33",
+  "S35",
+  "S38",
+  "S40",
+  "S05",
+  "S08",
+  "S16",
+  "S19",
+  "S22",
+  "S25",
+  "S30",
+  "S32",
+  "S34",
+  "S39",
+  "S42"
+ ],
+ "hosts": {
+  "local": {
+   "kind": "local"
+  },
+  "h100": {
+   "kind": "rcs",
+   "python": "/tmp/v2v/venv/bin/python",
+   "workdir": "/tmp/v2v/runs/mv",
+   "paths": {
+    "source_video": "/tmp/v2v/inputs/alaska_clip.mp4",
+    "audio": "/tmp/v2v/inputs/alaska_clip.mp4"
+   },
+   "env": {
+    "HF_HOME": "/tmp/v2v/hf",
+    "HF_HUB_DISABLE_XET": "1",
+    "TMPDIR": "/tmp/v2v/tmp",
+    "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"
+   }
+  }
+ },
+ "cover": {
+  "title": "阿拉斯加海灣",
+  "subtitle": "Cover by 布丁",
+  "side": "left"
+ }
+}

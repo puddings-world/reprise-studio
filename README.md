@@ -40,6 +40,35 @@ npm run remotion:studio
 npm run remotion:render
 ```
 
+翻唱動畫 MV（`tools/videogen`，Python，GPU 階段可在任何機器上跑）：
+
+```bash
+bash tools/videogen/scripts/setup.sh        # Windows: powershell -ExecutionPolicy Bypass -File tools/videogen/scripts/setup.ps1
+videogen --project data/videogen/alaska doctor
+```
+
+---
+
+## 翻唱動畫 MV（videogen）
+
+第二條產線：把**自己的翻唱演出影片**依歌詞分鏡做成動畫 MV。流程是半自動的：每一階段先生成候選、出一頁審閱頁，你選圖或寫意見退件，只有被退的鏡頭會重做。
+
+| # | 階段 | 怎麼做 | 你要決定的 |
+|---|---|---|---|
+| 1 | 依歌詞設計分鏡 | 和 Claude 討論，產出 `storyboard.json` + `prompts.json` | 分鏡表 |
+| 2 | 角色設定 | 從演出截圖畫幾種服裝、臉型 | 選一個主角 |
+| 3 | 關鍵幀 | `videogen keyframes` | 每鏡選圖或退件 |
+| 4 | 表情調整（可選） | `videogen edit` | 原圖或調整後 |
+| 5 | 動畫 | `videogen clips`：演唱鏡頭由原影片動作驅動（Wan-Animate-2），故事 / 意象鏡頭用圖生影片（Wan2.2-TI2V-5B） | 每段可退件 |
+| 6 | 剪接 | `videogen assemble`：轉場、繁中歌詞、原音軌 | 看成品 |
+| 7 | 封面 | `videogen cover` + `cover-title` | 選一張 |
+
+- **不綁硬體**：依當下可用顯存自動選擇放置策略；`--host` 可把 GPU 階段送到別台機器跑，結果同步回本機，斷線可用 `attach` 接回。
+- **換歌只換資料**：每首歌的資料在 `data/videogen/<song>/`，素材與產出不進 git。
+- **第一首成品**：阿拉斯加海灣，3:43、43 個鏡頭，約 4 GPU 小時。
+
+完整流程、技術路線（選用模型與理由、實測速度、試過放棄的做法、已知限制、下一步）、指令與疑難排解，見 [`tools/videogen/README.md`](tools/videogen/README.md)。工具鏈見 [`docs/toolchain.md`](docs/toolchain.md)。
+
 ---
 
 ## 資料集契約（Dataset Contract）
@@ -153,6 +182,8 @@ reprise-studio/
 │   └── utils/                      # 載入、插值、音訊輔助
 │
 ├── data/songs/<song-id>/           # 每首歌一個資料夾（timeline + config + notes）
+├── data/videogen/<song>/           # 翻唱動畫 MV 專案（分鏡、提示詞、主機設定）
+├── tools/videogen/                 # 翻唱動畫 MV 產線（Python）
 ├── public/audio/                   # 前端播放用音檔
 └── out/                            # Remotion 輸出（.gitignore）
 ```

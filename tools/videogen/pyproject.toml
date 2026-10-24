@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reprise-videogen"
+version = "0.1.0"
+description = "Semi-automatic cover-song anime MV pipeline: storyboard -> keyframes -> animated shots -> MV."
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "pillow>=10"]
+
+[project.optional-dependencies]
+# torch is installed separately by scripts/setup.* so the CUDA build can match the driver.
+gpu = ["diffusers>=0.41", "transformers>=5", "accelerate>=1.10", "huggingface_hub>=0.30",
+       "imageio-ffmpeg>=0.6", "ftfy", "sentencepiece", "safetensors"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+videogen = "videogen.cli:main"
+
+[tool.setuptools]
+packages = ["videogen"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]

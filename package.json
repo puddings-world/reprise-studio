@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "remotion:studio": "remotion studio src/remotion/index.ts",
-    "remotion:render": "remotion render src/remotion/index.ts LyricMV out/output.mp4 --codec=h264 --crf=18"
+    "remotion:render": "remotion render src/remotion/index.ts LyricMV out/output.mp4 --codec=h264 --crf=18",
+    "videogen:test": "python -m pytest -q tools/videogen/tests"
   },
   "dependencies": {
     "classnames": "^2.5.1",
