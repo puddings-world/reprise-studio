@@ -1,0 +1,21 @@
+{
+  "title": "一直很安靜",
+  "sections": [
+    { "t": 0.0,    "end": 19.33,  "type": "intro",       "mood": "still" },
+    { "t": 19.33,  "end": 58.89,  "type": "verse1",      "mood": "soft"  },
+    { "t": 58.89,  "end": 78.0,   "type": "chorus1",     "mood": "ache"  },
+    { "t": 78.0,   "end": 98.42,  "type": "solo",        "mood": "still" },
+    { "t": 98.42,  "end": 116.27, "type": "verse2",      "mood": "soft"  },
+    { "t": 116.27, "end": 150.0,  "type": "chorus2",     "mood": "ache"  },
+    { "t": 150.0,  "end": 176.42, "type": "bridge",      "mood": "still" },
+    { "t": 176.42, "end": 207.0,  "type": "chorus_last", "mood": "ache"  }
+  ],
+  "cues": [
+    { "t": 19.33,  "type": "flash-cold",   "label": "第一句人聲進入" },
+    { "t": 58.89,  "type": "color-flip",   "label": "副歌「給你的愛一直很安靜」" },
+    { "t": 116.27, "type": "iris-open",    "label": "副歌二：情緒撐開" },
+    { "t": 150.0,  "type": "shake-subtle", "label": "橋段進入：靜默內收" },
+    { "t": 176.42, "type": "color-flip",   "label": "最後副歌：回到主題" },
+    { "t": 195.0,  "type": "iris-close",   "label": "尾段「你突然不愛我這件事情」前" }
+  ]
+}

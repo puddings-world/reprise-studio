@@ -1,0 +1,204 @@
+/*
+ * SceneDefyLines styling.
+ *
+ * All colors come from CSS custom properties set in SceneDefyLines.tsx.
+ * No literal hex / rgba — only `color-mix()` opacity stops over token-fed
+ * colors, which are mathematical operations, not magic colors.
+ *
+ * Layer plan (matches the brief's three imagery items):
+ *   1. background — ink field with a low warm glow at the horizon band
+ *   2. horizon    — the bright band at ~76% height (radial-gradient ellipse)
+ *   3. lines      — 4–7 diagonal speed-line streaks, blurred, accent color
+ *   4. dust       — sparse 1–2px motes drifting along the streak axis
+ *   5. vignette   — focus dim at the edges
+ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: brightness(var(--scene-brightness, 0.85));
+}
+
+/* Layer 1: deep ink backdrop. The accent (sun) only seeps in at the bottom. */
+.background {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 90% 50% at 50% 100%,
+      color-mix(in srgb, var(--scene-primary) 60%, var(--scene-ink)) 0%,
+      var(--scene-ink) 70%
+    );
+}
+
+/*
+ * Layer 2: horizon glow at the lower band. A very wide, flat ellipse so it
+ * reads as "the direction being charged toward" rather than a sun on stage.
+ * Alpha is energy-driven via --scene-horizon-alpha.
+ */
+.horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 72%;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse 70% 80% at 50% 100%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-horizon-alpha, 0.4) * 100%),
+      transparent
+    ) 0%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-horizon-alpha, 0.4) * 35%),
+      transparent
+    ) 40%,
+    transparent 75%
+  );
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Layer 3 container: covers an oversized box so streaks can leave the frame. */
+.lines {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+}
+
+/*
+ * Each speed line: a thin, very-long horizontal strip with a gradient that
+ * fades at both ends so it has no hard edges (anti-"industrial bar"). The
+ * whole streak is rotated -28deg (between the brief's -22 and -32 range).
+ * It starts off-screen on the lower-right and translates to off-screen
+ * upper-left. Duration is per-element via --line-duration; the speed
+ * multiplier from React scales the keyframe translate distance.
+ *
+ * Animation period is intentionally between 1.5s and 3s — speed lines are
+ * cue-driven streaks (not ambient), and AGENT_PROTOCOL §二's ≥3s rule
+ * targets ambient loops. Density comes from stagger (--line-delay), not
+ * from going faster.
+ */
+.line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--line-y, 40%);
+  height: clamp(1.5px, 0.22vh, 3px);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--scene-accent) 0%, transparent) 8%,
+    color-mix(in srgb, var(--scene-accent) 70%, transparent) 35%,
+    color-mix(in srgb, var(--scene-accent) 90%, transparent) 50%,
+    color-mix(in srgb, var(--scene-accent) 70%, transparent) 65%,
+    color-mix(in srgb, var(--scene-accent) 0%, transparent) 92%,
+    transparent 100%
+  );
+  transform-origin: 50% 50%;
+  transform: rotate(-28deg) translate3d(60vw, 30vh, 0);
+  filter: blur(5px);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation:
+    streak var(--line-duration, 2.2s) cubic-bezier(0.2, 0.7, 0.2, 1)
+      var(--line-delay, 0s) infinite;
+}
+
+/*
+ * Keyframes use a CSS variable in the translate distance so React's
+ * --scene-line-speed-mul scales how far each streak travels per cycle.
+ * Higher energy → larger distance → reads as faster motion without
+ * shortening the period.
+ */
+@keyframes streak {
+  0% {
+    transform: rotate(-28deg)
+      translate3d(calc(60vw * var(--scene-line-speed-mul, 1)),
+                  calc(30vh * var(--scene-line-speed-mul, 1)), 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(-28deg)
+      translate3d(calc(-60vw * var(--scene-line-speed-mul, 1)),
+                  calc(-30vh * var(--scene-line-speed-mul, 1)), 0);
+    opacity: 0;
+  }
+}
+
+/* Layer 4 container: dust motes drift slowly along the streak axis. */
+.dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mote {
+  position: absolute;
+  left: var(--mote-x, 50%);
+  top: var(--mote-y, 50%);
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scene-accent) 70%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--scene-accent) 50%, transparent);
+  opacity: 0.5;
+  will-change: transform, opacity;
+  animation: drift var(--mote-duration, 6s) ease-in-out
+    var(--mote-delay, 0s) infinite alternate;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  100% {
+    /* Drift diagonally to match the speed-line axis, but slow & shallow. */
+    transform: translate3d(-3vw, -1.5vh, 0);
+    opacity: 0.35;
+  }
+}
+
+/* Layer 5: vignette to anchor focus. Same envelope as SceneNameless. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    var(--scene-ink) 100%
+  );
+  opacity: var(--scene-vignette, 0.35);
+}
+
+/*
+ * Reduced motion: speed lines and dust motes both stop. Streaks freeze at a
+ * stable mid-frame position (visible but static) so the imagery is still
+ * legible — i.e. the user sees gold streaks crossing the frame, just not
+ * moving. Horizon glow is static-by-construction so it needs no override.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    animation: none;
+    /* Park at mid-flight so streaks are visible but motionless. */
+    transform: rotate(-28deg) translate3d(0, 0, 0);
+    opacity: 0.85;
+  }
+  .mote {
+    animation: none;
+    opacity: 0.5;
+  }
+}

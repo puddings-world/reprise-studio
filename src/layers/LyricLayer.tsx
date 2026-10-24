@@ -26,13 +26,19 @@ export function LyricLayer({ lyric }: LyricLayerProps) {
         zIndex: 10,
       }}
     >
-      <AnimatePresence mode="wait">
+      {/*
+        No `mode="wait"` — that would force the old line to fully exit before
+        the new one mounts, doubling the perceived delay (fadeOut + fadeIn).
+        Default "sync" lets them crossfade, so a new line lands at its own
+        timestamp, not after the previous one's exit finishes.
+      */}
+      <AnimatePresence>
         {lyric && lyric.text.trim() !== '' && (
           <motion.div
             key={lyric.t}
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
+            exit={{ opacity: 0, y: -4 }}
             transition={{
               duration: tokens.motion.lyricFadeIn,
               ease: tokens.easing.lyricIn as unknown as number[],

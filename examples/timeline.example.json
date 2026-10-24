@@ -7,7 +7,20 @@
     "bpm": 72,
     "key": "C major",
     "created_at": "2026-04-22",
-    "version": 1
+    "version": 1,
+    "source": {
+      "dataset": "MandpopDataset",
+      "youtube_url": "https://www.youtube.com/watch?v=example",
+      "lyricist": "示例",
+      "composer": "示例",
+      "album": "示例"
+    },
+    "alignment": {
+      "vocal_onset_sec": 18.4,
+      "first_lyric_sec": 18.4,
+      "delta_sec": 0.0,
+      "verdict": "ok"
+    }
   },
 
   "sections": [

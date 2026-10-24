@@ -18,8 +18,10 @@ export const color = {
 
 export const motion = {
   sceneTransition: 2.0,
-  lyricFadeIn: 1.6,
-  lyricFadeOut: 1.2,
+  // Lyric crossfade — kept SHORT because lines come 2-5s apart in pop;
+  // anything ≥1s makes the lyric chronically lag the vocal.
+  lyricFadeIn: 0.35,
+  lyricFadeOut: 0.25,
   cueFlashIn: 0.15,
   cueFlashOut: 0.6,
   paletteShift: 5.0,

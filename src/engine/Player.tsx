@@ -7,6 +7,8 @@ import { LyricLayer } from '@/layers/LyricLayer';
 import { CueFlashLayer } from '@/layers/CueFlashLayer';
 import { GrainLayer } from '@/layers/GrainLayer';
 import { TimeScrubber } from '@/layers/TimeScrubber';
+import { SongSwitcher } from '@/layers/SongSwitcher';
+import { LyricInspector } from '@/layers/LyricInspector';
 import type { Clock } from './clock';
 
 export type PlayerMode = 'audio' | 'scrubber';
@@ -54,6 +56,14 @@ export function Player({ config, timeline, sceneRegistry, clock, energy, mode }:
       <GrainLayer />
       <CueFlashLayer recentCue={recentCue} currentTime={adjusted} />
       <LyricLayer lyric={currentLyric} />
+      <SongSwitcher currentSongId={config.songId} />
+      <LyricInspector
+        lyrics={timeline.lyrics}
+        currentTime={clock.currentTime}
+        offsetSec={offsetSec}
+        onOffsetChange={setOffsetSec}
+        onSeek={clock.seek}
+      />
       <TimeScrubber
         clock={clock}
         sections={timeline.sections}

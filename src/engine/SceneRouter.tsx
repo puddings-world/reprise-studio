@@ -46,6 +46,7 @@ export function SceneRouter({
       section={section}
       palette={palette}
       lyric={lyric}
+      timeSec={currentTime}
     />
   );
 }

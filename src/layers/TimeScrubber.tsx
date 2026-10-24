@@ -163,17 +163,38 @@ export function TimeScrubber({
         <span style={{ opacity: 0.45, fontStyle: 'italic', fontSize: 12 }}>
           {mode === 'audio' ? 'audio' : 'scrubber'}
         </span>
-        <span
-          title="lyric offset (=/- nudge ±0.05s, +/_ ±0.5s, r reset)"
-          style={{
-            opacity: offsetSec === 0 ? 0.4 : 0.85,
-            fontStyle: 'italic',
-            fontSize: 12,
-            color: offsetSec === 0 ? undefined : '#ffd27d',
-          }}
-        >
-          ofs {offsetSec >= 0 ? '+' : ''}{offsetSec.toFixed(2)}s
-        </span>
+        {onOffsetChange && (
+          <div
+            title="lyric offset — kb: =/- ±0.05s · +/_ ±0.5s · r reset"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              padding: '2px 4px',
+              border: '1px solid #f5efe340',
+              borderRadius: 4,
+              fontSize: 12,
+              fontStyle: 'italic',
+            }}
+          >
+            <OffsetBtn label="−.5" onClick={() => onOffsetChange(round(offsetSec - 0.5))} />
+            <OffsetBtn label="−" onClick={() => onOffsetChange(round(offsetSec - 0.05))} />
+            <span
+              style={{
+                minWidth: 64,
+                textAlign: 'center',
+                opacity: offsetSec === 0 ? 0.5 : 1,
+                color: offsetSec === 0 ? undefined : '#ffd27d',
+                padding: '0 4px',
+              }}
+            >
+              ofs {offsetSec >= 0 ? '+' : ''}{offsetSec.toFixed(2)}s
+            </span>
+            <OffsetBtn label="+" onClick={() => onOffsetChange(round(offsetSec + 0.05))} />
+            <OffsetBtn label="+.5" onClick={() => onOffsetChange(round(offsetSec + 0.5))} />
+            <OffsetBtn label="↺" onClick={() => onOffsetChange(0)} disabled={offsetSec === 0} />
+          </div>
+        )}
         <span style={{ opacity: 0.6 }}>{currentSectionType ?? '—'}</span>
         <span>{format(clock.currentTime)} / {format(clock.duration)}</span>
       </div>
@@ -189,6 +210,40 @@ function format(t: number): string {
 
 function round(t: number): number {
   return Math.round(t * 100) / 100;
+}
+
+function OffsetBtn({
+  label,
+  onClick,
+  disabled,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        minWidth: 24,
+        height: 22,
+        padding: '0 6px',
+        background: 'transparent',
+        border: '1px solid #f5efe355',
+        borderRadius: 3,
+        color: '#f5efe3',
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: disabled ? 0.25 : 0.85,
+        fontFamily: 'inherit',
+        fontSize: 12,
+        lineHeight: 1,
+      }}
+    >
+      {label}
+    </button>
+  );
 }
 
 function moodTint(mood: string): string {

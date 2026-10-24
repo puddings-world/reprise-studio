@@ -9,8 +9,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "remotion:studio": "remotion studio src/remotion/Root.tsx",
-    "remotion:render": "remotion render src/remotion/Root.tsx LyricMV out/output.mp4 --codec=h264 --crf=18"
+    "remotion:studio": "remotion studio src/remotion/index.ts",
+    "remotion:render": "remotion render src/remotion/index.ts LyricMV out/output.mp4 --codec=h264 --crf=18"
   },
   "dependencies": {
     "classnames": "^2.5.1",

@@ -4,6 +4,7 @@ import { yiZhiHenAnJingPalette } from '@/theme/palettes/yi-zhi-hen-an-jing';
 const config: SongConfig = {
   songId: 'yi-zhi-hen-an-jing',
   audioSrc: '/audio/yi-zhi-hen-an-jing.mp3',
+  audioInstrumentalSrc: '/audio/yi-zhi-hen-an-jing.m4a',
   timelineSrc: '/data/songs/yi-zhi-hen-an-jing/timeline.json',
   palette: yiZhiHenAnJingPalette,
   sceneMap: {

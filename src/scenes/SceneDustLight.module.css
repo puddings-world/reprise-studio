@@ -1,0 +1,226 @@
+/*
+ * SceneDustLight styling.
+ *
+ * Every color comes from a CSS custom property set in SceneDustLight.tsx.
+ * No literal hex / rgba — only `color-mix()` opacity stops over token-fed
+ * colors, which are mathematical operations, not magic colors.
+ *
+ * Layout intent: a single diagonal beam (top-left → bottom-right) over a
+ * sepia, vignette-soaked backdrop. Dust motes float only inside the beam.
+ * Time is slow: every loop is well over 3s (drift period 5–9s).
+ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: brightness(var(--scene-brightness, 0.55));
+}
+
+/*
+ * Layer 1: sepia backdrop. A warm radial glow biased slightly toward the
+ * upper-left (where the beam enters) over a deep wound-tinted floor.
+ */
+.background {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 65% 55% at 32% 28%,
+      color-mix(in srgb, var(--scene-warm) 14%, var(--scene-primary)) 0%,
+      color-mix(in srgb, var(--scene-primary) 92%, var(--scene-ink)) 60%,
+      color-mix(in srgb, var(--scene-primary) 75%, var(--scene-ink)) 100%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--scene-primary) 88%, var(--scene-ink)) 0%,
+      color-mix(in srgb, var(--scene-ink) 88%, var(--scene-primary)) 100%
+    );
+  background-blend-mode: screen;
+}
+
+/*
+ * Layer 2: the beam. A tall narrow strip centered on the frame, rotated
+ * -28deg so it runs from upper-left to lower-right. The body uses a
+ * three-stop linear gradient (transparent → warm → transparent) so the
+ * core of the beam is the brightest stripe. Heavy blur softens the edge.
+ *
+ * The beam itself does NOT translate — only its alpha breathes via
+ * `--scene-beam-alpha`.
+ */
+.beam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(180px, 28vw, 380px);
+  /* Long enough to cross any 16:9 viewport when rotated. */
+  height: 170%;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  transform-origin: 50% 50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-beam-alpha, 0.55) * 35%),
+      transparent
+    )
+      30%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-beam-alpha, 0.55) * 100%),
+      transparent
+    )
+      50%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-beam-alpha, 0.55) * 35%),
+      transparent
+    )
+      70%,
+    transparent 100%
+  );
+  filter: blur(9px);
+  pointer-events: none;
+  /* Soft alpha breathing — period 6s, easing handles the slow inhale. */
+  animation: beamBreath 6s ease-in-out infinite alternate;
+}
+
+/*
+ * Layer 3: dust field. Sized identically to the beam and rotated to match,
+ * so positioning each mote in this container's local x/y aligns with the
+ * beam's coordinate space. The mask gradient confines visibility to the
+ * central strip of this rotated box → motes are visible only inside the
+ * beam, regardless of where they drift.
+ */
+.dustField {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(180px, 28vw, 380px);
+  height: 170%;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  opacity: var(--scene-dust-visibility, 0.6);
+
+  /* Confine motes to the beam's central strip (perpendicular axis).
+     Mask uses ink-token-derived alpha stops; only the alpha channel
+     matters for masking, the underlying hue is just a carrier color. */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--scene-ink) 85%, transparent) 35%,
+    var(--scene-ink) 50%,
+    color-mix(in srgb, var(--scene-ink) 85%, transparent) 65%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--scene-ink) 85%, transparent) 35%,
+    var(--scene-ink) 50%,
+    color-mix(in srgb, var(--scene-ink) 85%, transparent) 65%,
+    transparent 100%
+  );
+}
+
+/*
+ * Individual dust mote. Base style; per-mote position/timing comes from
+ * nth-child rules below so re-renders never twitch.
+ */
+.mote {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scene-paper) 78%, transparent);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--scene-warm) 60%, transparent),
+    0 0 8px color-mix(in srgb, var(--scene-warm) 30%, transparent);
+  /* Drift duration is scaled by energy via the custom property. Base is
+     7s; scaling lets quiet sections drift slower, loud ones a touch faster.
+     7s × 1 (quiet) = 7s ; 7s × 1/1.4 (peak) ≈ 5s. Both ≥ 3s. */
+  animation:
+    moteDrift calc(7s * var(--scene-dust-duration-scale, 1)) ease-in-out infinite alternate,
+    moteFlicker calc(5.5s * var(--scene-dust-duration-scale, 1)) ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+/* Per-mote layout & timing — fixed values, no random. 16 motes spread
+   along the beam's local y-axis (the long axis after rotation), each with
+   a slightly different x offset within the beam's width, a unique delay,
+   and an individual duration multiplier to break up sync. All durations
+   land in 5–9s range after the energy scale is applied. */
+
+.mote:nth-child(1)  { top: 5%;  left: 48%; animation-delay:  -0.2s, -1.1s; animation-duration: calc(7.2s * var(--scene-dust-duration-scale, 1)), calc(5.8s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(2)  { top: 11%; left: 55%; animation-delay:  -1.4s, -2.6s; animation-duration: calc(8.1s * var(--scene-dust-duration-scale, 1)), calc(5.2s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(3)  { top: 17%; left: 43%; animation-delay:  -2.8s, -0.4s; animation-duration: calc(6.4s * var(--scene-dust-duration-scale, 1)), calc(6.3s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(4)  { top: 23%; left: 52%; animation-delay:  -3.7s, -3.2s; animation-duration: calc(7.8s * var(--scene-dust-duration-scale, 1)), calc(5.9s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(5)  { top: 29%; left: 46%; animation-delay:  -0.9s, -4.0s; animation-duration: calc(6.9s * var(--scene-dust-duration-scale, 1)), calc(5.4s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(6)  { top: 35%; left: 57%; animation-delay:  -4.2s, -1.7s; animation-duration: calc(8.6s * var(--scene-dust-duration-scale, 1)), calc(6.1s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(7)  { top: 41%; left: 44%; animation-delay:  -2.1s, -3.6s; animation-duration: calc(7.4s * var(--scene-dust-duration-scale, 1)), calc(5.7s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(8)  { top: 47%; left: 50%; animation-delay:  -5.1s, -0.7s; animation-duration: calc(6.6s * var(--scene-dust-duration-scale, 1)), calc(6.4s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(9)  { top: 53%; left: 54%; animation-delay:  -3.3s, -2.2s; animation-duration: calc(8.3s * var(--scene-dust-duration-scale, 1)), calc(5.5s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(10) { top: 59%; left: 47%; animation-delay:  -1.6s, -4.4s; animation-duration: calc(7.1s * var(--scene-dust-duration-scale, 1)), calc(6.0s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(11) { top: 65%; left: 51%; animation-delay:  -4.7s, -1.3s; animation-duration: calc(6.8s * var(--scene-dust-duration-scale, 1)), calc(5.6s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(12) { top: 71%; left: 45%; animation-delay:  -0.5s, -3.0s; animation-duration: calc(8.7s * var(--scene-dust-duration-scale, 1)), calc(6.2s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(13) { top: 77%; left: 53%; animation-delay:  -2.5s, -4.7s; animation-duration: calc(7.5s * var(--scene-dust-duration-scale, 1)), calc(5.3s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(14) { top: 83%; left: 49%; animation-delay:  -5.8s, -2.0s; animation-duration: calc(6.3s * var(--scene-dust-duration-scale, 1)), calc(5.9s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(15) { top: 89%; left: 56%; animation-delay:  -1.0s, -3.8s; animation-duration: calc(8.4s * var(--scene-dust-duration-scale, 1)), calc(6.5s * var(--scene-dust-duration-scale, 1)); }
+.mote:nth-child(16) { top: 95%; left: 42%; animation-delay:  -3.6s, -1.5s; animation-duration: calc(7.0s * var(--scene-dust-duration-scale, 1)), calc(5.8s * var(--scene-dust-duration-scale, 1)); }
+
+/*
+ * Layer N: warm sepia vignette to focus center and yellow the edges.
+ * Mixes wound/ink at the rim, accent (warm) toward the middle for a
+ * faded-photograph feel.
+ */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 75% 65% at 50% 50%,
+    transparent 40%,
+    color-mix(in srgb, var(--scene-wound) 60%, transparent) 78%,
+    color-mix(in srgb, var(--scene-ink) 92%, transparent) 100%
+  );
+  opacity: calc(var(--scene-vignette, 0.35) + 0.25);
+}
+
+/*
+ * Beam alpha breath. We can't animate `background` smoothly, so we
+ * piggyback on `opacity` for the breath (cheap, GPU-friendly). Range
+ * 0.85 → 1.0 over 6s — subtle, never fully off.
+ */
+@keyframes beamBreath {
+  0%   { opacity: 0.85; }
+  100% { opacity: 1.0; }
+}
+
+/*
+ * Mote drift: small translate in the rotated local coordinate space.
+ * Amplitude small enough to keep motes inside the mask strip.
+ */
+@keyframes moteDrift {
+  0%   { transform: translate(-6px, -10px); }
+  50%  { transform: translate(4px,   6px); }
+  100% { transform: translate(8px,  12px); }
+}
+
+/* Independent opacity flicker so motes don't all pulse on the same beat. */
+@keyframes moteFlicker {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 0.95; }
+  100% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam { animation: none; opacity: 0.9; }
+  .mote {
+    animation: none;
+    /* Hold motes at a calm mid-state so the scene remains legible. */
+    opacity: 0.7;
+    transform: translate(0, 0);
+  }
+}

@@ -6,16 +6,29 @@
 
 ## 專案一句話定位
 
-本專案是**個人翻唱歌手的精緻 Lyric MV 生產 + 設計系統**。
+本專案是**個人翻唱歌手的視覺/動畫工作室**，**不做 data engineering**。
 
-- **輸入**：歌名 + 音訊檔案（使用者提供）
-- **資料**：歌詞時間標籤來自**另一個 repo**：`MandpopDataPipeline`（GitHub: <https://github.com/GeniusPudding/MandpopDataPipeline>，本地預設路徑 `D:\MandpopDataset`）
-- **輸出**：抒情抽象風格、可上 YouTube 的 Lyric MV；瀏覽器可即時預覽，Remotion 可渲染 MP4
+- **輸入**：歌名（**音檔與對齊好的歌詞時間軸都已備在 dataset 裡**，不需要使用者另外提供音訊路徑）
+- **資料來源**：`MandpopDataPipeline`（GitHub: <https://github.com/GeniusPudding/MandpopDataPipeline>，本地預設路徑 `D:\MandpopDataset`）— 所有 labeled data（處理過的音檔、歌詞時間對齊、段落 / mood / cue 標註）都在那邊產出
+- **輸出**：抒情抽象風格、可上 YouTube 的 Lyric MV；瀏覽器即時預覽，Remotion 渲染 MP4
 
-Claude 在這個 repo 裡擔任兩個角色：
+### 職責邊界（硬規則）
 
-1. **Intake assistant**：使用者給歌名 + 音訊，你把資料從 MandpopDataPipeline 拉進來、scaffold 好一首歌的所有檔案
-2. **Design director**：在開始實作 scene 之前，**主動和使用者討論這首歌的風格**；得到方向後依 `docs/AGENT_PROTOCOL.md` 派 agent（或自己擔任 Scene Designer）實作
+| 工作 | 在哪裡做 |
+|---|---|
+| 音源處理、人聲/伴奏分離 | dataset |
+| 歌詞時間對齊、LRC 校時 | dataset |
+| 段落 / mood / cue 標註 | dataset |
+| 視覺/動畫 scene 設計 | **本 repo** |
+| Palette / token / typography | **本 repo** |
+| Remotion 輸出 | **本 repo** |
+
+發現音訊或歌詞時間有問題 → 回 dataset repo 修，**不要在本 repo 改 timeline.json 的時間戳**。Live offset nudge 是定位用工具，最終值寫進 `config.lyricOffsetSec` 即可，仍不改 timeline 本身。
+
+### Claude 在這個 repo 裡擔任兩個角色
+
+1. **Intake assistant**：使用者報歌名，你跑 intake adapter 從 dataset 搬資料進來、scaffold 一首歌的所有檔案。**不要詢問音訊檔路徑** — 一切從 dataset 取。
+2. **Design director**：實作 scene 前**先解析歌詞情境**主動提出方向（不是冷問使用者要什麼風格），得到認可後依 `docs/AGENT_PROTOCOL.md` 派 agent（或自己擔任 Scene Designer）實作。
 
 ---
 
@@ -26,57 +39,98 @@ Claude 在這個 repo 裡擔任兩個角色：
 - **GitHub**：<https://github.com/GeniusPudding/MandpopDataPipeline>
 - **本地預設路徑**：`D:\MandpopDataset`（Windows；目錄名不必和 repo 名一致）
 - **覆寫方式**：環境變數 `MANDPOP_DATASET`，或在本 repo 根目錄放 `.env` 設定
-- **目前實際結構**（與本 repo 預期 schema 有 gap）：
 
-  ```
-  <MandpopDataset>/
-  └── songs/
-      └── <中文歌名>/
-          ├── metadata.json    # title, artist, duration_sec, youtube_url
-          ├── lyrics.lrc       # LRC 格式（時間戳，無 section/cue 標記）
-          ├── lyrics.txt
-          ├── original.mp3
-          ├── instrumental.wav
-          └── vocals.wav
-  ```
+### 權威介面：`processed_dataset.jsonl`
 
-- **Schema gap**：MandpopDataset 目前**只**提供 LRC + audio，**沒有** `sections[]` / `cues[]` / 詞 emphasis。本 repo 期待 `timeline.json` 帶完整 schema（見 `examples/timeline.example.json`）。
+Dataset 對外的官方介面是 `<MANDPOP_DATASET>/processed_dataset.jsonl` — 每一行是一首**通過 alignment gate**（Layer 1 VAD + Layer 2 WhisperX，verdict ∈ `{ok, fixed}`）的歌。沒在 processed 裡的歌**不要 intake**，那是 dataset 那邊還沒整理完的訊號。
 
-  橋接方式：執行 `node scripts/intake-from-mandpop.mjs <中文歌名> <kebab-song-id>` — 解析 LRC + 用該腳本內的人工 SECTIONS / CUES map 產出合法 timeline.json，並 copy 音檔 + scaffold config.ts / notes.md。**長期目標**是把 sections / cues 變成 MandpopDataPipeline 的 first-class 輸出，廢掉這個 adapter。
+每筆 record schema：
 
-- **Schema 契約**：`timeline.json` 必須符合本 repo 的 `src/engine/types.ts` 與 `examples/timeline.example.json`。不合就回去資料 repo 修，**不要在本 repo 修 timeline**。
-- **更新**：資料 repo 的更新不會自動同步，每首新歌都要走 intake 流程手動拉進來。
+```json
+{
+  "title": "一直很安靜",
+  "artist": "阿桑",
+  "lyricist": "方文山",
+  "composer": "如花如岳",
+  "album": "一直很安静",
+  "youtube_url": "...",
+  "files": {
+    "instrumental": "songs/一直很安靜/instrumental.m4a",
+    "lyrics": "songs/一直很安靜/lyrics.lrc"
+  }
+}
+```
 
-若檔案不在預期位置，**停下來告訴使用者**，不要自行猜測路徑或產生假 timeline。
+`files.instrumental` 是 dataset 標記為 consumer-ready 的 AAC 192k 檔。`original.mp3`（含人聲的 YouTube 原檔）也在同一個 `songs/<title>/` 資料夾底下，**intake 也會搬，給設計預覽用**（聽得到人聲才能對情緒、cue 落點）。
+
+### 雙音檔策略
+
+| 檔案 | 來源 | 在本 repo 的用途 |
+|---|---|---|
+| `<song-id>.mp3` | dataset `original.mp3` | **設計預覽** — 帶人聲，方便對情緒與 cue 落點 |
+| `<song-id>.m4a` | dataset `instrumental.m4a` | **錄音/翻唱** — 純伴奏，未來使用者要錄自己的 cover 時播這個 |
+
+兩個都搬到 `public/audio/` 底下。`SongConfig.audioSrc` 預設指 .mp3（設計階段），`audioInstrumentalSrc` 指 .m4a（之後加 toggle 切換）。
+
+### Alignment 信任邊界
+
+LRC 已經被 dataset 的 alignment gate 驗過（Layer 1 ≤ 0.5s 容忍 + Layer 2 WhisperX drift 驗證）。`SongConfig.lyricOffsetSec` 是 tie-breaker，**不該動到任何時間戳本身**。如果 offset 怎麼調都不對 → 是 dataset 那邊真的偏了，回 MandpopDataPipeline 跑 `python pipeline.py audit --layer2 --only "<歌名>"` 重驗。
+
+### 本 repo 的 schema 加值層
+
+dataset 提供「**有時間軸的歌詞行**」；本 repo 在 intake 時補上：
+
+- **`sections[]`** — 段落邊界（intro / verse1 / chorus1 / bridge / ...）+ mood（still / soft / ache / open / defy / fin）
+- **`cues[]`** — 視覺特效時間點（flash-cold / color-flip / iris-open / ...）
+- **`lyrics[i].end`** — 從下一行 t 推算的 lyric 結束時間（dataset 只給 t）
+
+橋接腳本：`node scripts/intake-from-mandpop.mjs <中文歌名> <kebab-song-id>` — 從 `processed_dataset.jsonl` 找歌、解析 LRC、套每首歌的 `data/songs/<song-id>/curation.json`（sections + cues，缺檔會 scaffold 模板後停下）、跑 alignment doctor（vocals stem 測 onset → 砍 pre-vocal credit 行 + 驗證第一句對齊）、預算 20Hz 能量曲線（`energy.json`，Remotion 渲染用）、拷兩個音檔、scaffold config.ts / notes.md。
+
+**長期目標**：把 sections / cues / mood 變成 MandpopDataPipeline 的 first-class 輸出，廢掉這個 adapter。
+
+### Schema 契約 + 更新規則
+
+- `timeline.json` 必須符合 `src/engine/types.ts` 與 `examples/timeline.example.json`。不合就回去資料 repo 修，**不要在本 repo 修 timeline**。
+- 資料 repo 的更新不會自動同步，每首新歌都要走 intake 流程手動拉進來。
+- 若 `processed_dataset.jsonl` 找不到歌，**停下來告訴使用者**，不要自行猜測或產生假 timeline。
 
 ---
 
 ## 新歌 intake 流程
 
-當使用者說「我要做 `<歌名>`，音訊在 `<path>`」（或類似意思），你依這個順序執行：
+當使用者說「我要做 `<歌名>`」（不需要音訊路徑 — 從 dataset 取），你依這個順序執行：
 
-### 1. 定位 song_id
+### 1. 在 `processed_dataset.jsonl` 找歌
 
-`song_id` 的權威來源是 `<MANDPOP_DATA_REPO>/songs/` 底下的資料夾名。
+歌的權威來源是 `<MANDPOP_DATASET>/processed_dataset.jsonl` — 只認這個檔案裡的 `title`：
 
-- 先 `ls` 資料 repo 的 `songs/` 目錄，看有哪些 id
-- 從使用者給的歌名找匹配（比對資料夾名或 `timeline.json` 的 `meta.title`）
-- 有多個可能就列給使用者選
-- **不要自己翻譯歌名造 song_id**
+- 從使用者給的中文歌名比對 `title` 欄位（exact 或 substring）
+- 多個 match 就列給使用者選
+- **不要看 `songs/` 資料夾來推斷** — 那邊也可能含未過 alignment gate 的歌，scan 出來容易誤入「raw 但 not processed」的歌
+- 把 kebab-case 的 `song-id` 跟使用者敲定（例：「一直很安靜」→「yi-zhi-hen-an-jing」），**不要自己翻譯歌名造 song_id**，問使用者
 
-### 2. 若找不到
+### 2. 若找不到（或不在 processed）
 
 告訴使用者：
-- 你查了哪個路徑
-- 資料 repo 裡現有的 song_id + title 列表
-- **停下來不要往下做**。使用者可能要先去 MandpopDataPipeline 跑資料流水線
+- 你檢查了 `processed_dataset.jsonl`
+- 可能的近似 title 列表
+- **停下來不要往下做**。要嘛 dataset 還沒收這首，要嘛這首沒過 alignment gate（在 raw 但不在 processed）→ 回 MandpopDataPipeline 跑 `pipeline.py add` 或 `pipeline.py audit`
 
-### 3. 搬運資產
+### 3. 搬運資產（從 dataset，不從使用者）
 
-- **音檔** → `public/audio/<song-id>.<ext>`（保持原始副檔名；若是大 WAV，提醒使用者之後可能要壓成 mp3 給前端）
-- **timeline** → `data/songs/<song-id>/timeline.json`（直接從資料 repo 複製）
-- **config + notes** → 從 `docs/templates/song_template/` 生成 `data/songs/<song-id>/config.ts` 和 `notes.md`（替換 `SONG_ID` / `SONG_TITLE` placeholder）
-- **palette** → 從 `src/theme/palettes/_template.ts` 生 `src/theme/palettes/<song-id>.ts`（先放模板值，§4 對談完再調）
+跑 `node scripts/intake-from-mandpop.mjs <中文歌名> <kebab-song-id>`，它會：
+
+- **curation** → 讀 `data/songs/<song-id>/curation.json`（sections + cues，本 repo 人工填寫）。第一次跑會 scaffold 模板後停下 — 聽預覽音檔把 section 邊界 + mood + cue 點填好再跑一次
+- **音檔（兩份）** → 從 dataset copy 到 `public/audio/`：
+  - `<song-id>.mp3` 來自 `original.mp3`（設計預覽，含人聲；dataset compact 過就會缺，intake 警告後繼續）
+  - `<song-id>.m4a` 來自 `instrumental.m4a`（之後錄翻唱用，純伴奏）
+- **alignment doctor** → ffmpeg silencedetect 掃 dataset 的 `vocals.flac` 找人聲 onset：砍掉 onset 前的 credit 行（不靠字面黑名單）；第一句歌詞早於 onset 超過 0.5s 就警告（= 上游對齊問題，回 dataset 重跑 audit）。結果寫進 `timeline.meta.alignment`
+- **timeline** → 解析 dataset 的 `lyrics.lrc`（路徑由 `processed_dataset.jsonl` 的 `files.lyrics` 提供）+ curation.json → `data/songs/<song-id>/timeline.json`
+- **energy** → 從本地音檔預算 20Hz RMS 曲線 → `data/songs/<song-id>/energy.json`（Remotion 渲染與 scrubber 模式用的離線能量）
+- **config + notes** → scaffold `data/songs/<song-id>/config.ts` 和 `notes.md`（config 裡 `audioSrc` 指 mp3、`audioInstrumentalSrc` 指 m4a）
+- **palette** → 不由腳本生成；§4 風格對談定調後，由 Claude / scene agent 從 `src/theme/palettes/_template.ts` 建 `src/theme/palettes/<song-id>.ts`
+
+**不要**詢問使用者「音訊在哪」、也不要要求他另外把音檔丟過來——dataset 就是音檔的來源。
 
 ### 4. 風格對談（強制）
 

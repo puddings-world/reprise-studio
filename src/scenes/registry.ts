@@ -8,6 +8,9 @@ import { SceneRainSnow } from './SceneRainSnow';
 import { SceneSkyward } from './SceneSkyward';
 import { SceneFin } from './SceneFin';
 import { SceneNameless } from './SceneNameless';
+import { SceneSteamTable } from './SceneSteamTable';
+import { SceneDefyLines } from './SceneDefyLines';
+import { SceneDustLight } from './SceneDustLight';
 
 export const sceneRegistry: Record<string, ComponentType<SceneProps>> = {
   SceneSilence,
@@ -18,4 +21,7 @@ export const sceneRegistry: Record<string, ComponentType<SceneProps>> = {
   SceneSkyward,
   SceneFin,
   SceneNameless,
+  SceneSteamTable,
+  SceneDefyLines,
+  SceneDustLight,
 };

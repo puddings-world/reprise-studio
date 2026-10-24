@@ -1,0 +1,24 @@
+{
+  "title": "倔強",
+  "sections": [
+    { "t": 0.0,    "end": 42.65,  "type": "intro",       "mood": "still" },
+    { "t": 42.65,  "end": 67.18,  "type": "verse1",      "mood": "defy"  },
+    { "t": 67.18,  "end": 79.43,  "type": "pre_chorus",  "mood": "defy"  },
+    { "t": 79.43,  "end": 119.48, "type": "chorus1",     "mood": "defy"  },
+    { "t": 119.48, "end": 144.11, "type": "verse2",      "mood": "defy"  },
+    { "t": 144.11, "end": 156.39, "type": "bridge",      "mood": "defy"  },
+    { "t": 156.39, "end": 193.30, "type": "chorus2",     "mood": "defy"  },
+    { "t": 193.30, "end": 252.0,  "type": "chorus_last", "mood": "open"  },
+    { "t": 252.0,  "end": 264.0,  "type": "outro",       "mood": "fin"   }
+  ],
+  "cues": [
+    { "t": 42.65,  "type": "flash-cold",   "label": "第一句「當我和世界不一樣」" },
+    { "t": 67.18,  "type": "color-flip",   "label": "Pre-chorus「最美的願望」" },
+    { "t": 79.43,  "type": "iris-open",    "label": "副歌「我和我最後的倔強」全力釋放" },
+    { "t": 119.48, "type": "shake-subtle", "label": "Verse 2 進入，咬牙不放" },
+    { "t": 144.11, "type": "color-flip",   "label": "「逆風的方向 更適合飛翔」橋段" },
+    { "t": 193.30, "type": "static-burst", "label": "最後副歌爆發點" },
+    { "t": 220.83, "type": "flash-warm",   "label": "「讓我大聲唱」啦啦合唱進入" },
+    { "t": 245.45, "type": "iris-close",   "label": "最後「就這一次 我和我的倔強」" }
+  ]
+}

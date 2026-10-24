@@ -1,0 +1,216 @@
+/*
+ * SceneSteamTable styling.
+ *
+ * Every color flows from CSS custom properties set in SceneSteamTable.tsx.
+ * No literal hex / rgba — only `color-mix()` opacity stops over token-fed
+ * colors, which are mathematical operations, not magic colors.
+ *
+ * Layout intent:
+ *   - Lower band (top ~74%) is a soft dark table silhouette.
+ *   - Three blurred vertical steam columns rise from the table edge.
+ *   - Upper-right has a soft warm lamp glow.
+ *   - Majority of the frame is empty (sky / ceiling) to keep the lyric breathing.
+ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: brightness(var(--scene-brightness, 0.55));
+}
+
+/* Layer 1: deep room backdrop. Warm-leaning radial bias upward-right
+ * (where the lamp is); fades to ink in the corners. */
+.background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 65% at 68% 28%,
+    color-mix(in srgb, var(--scene-primary) 55%, var(--scene-ink)) 0%,
+    color-mix(in srgb, var(--scene-primary) 18%, var(--scene-ink)) 55%,
+    var(--scene-ink) 92%
+  );
+}
+
+/* Layer 2: warm lamp halo. Upper-right ellipse, very soft edge. The
+ * `--scene-lamp-glow` var (0.6–0.75) drives the alpha so it breathes with
+ * energy. No keyframe — the breath is energy-driven, not time-driven. */
+.lamp {
+  position: absolute;
+  left: 55%;
+  right: 0;
+  top: 0;
+  height: 60%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 65% at 70% 30%,
+    color-mix(
+      in srgb,
+      var(--scene-sun) calc(var(--scene-lamp-glow, 0.6) * 55%),
+      transparent
+    )
+      0%,
+    color-mix(
+      in srgb,
+      var(--scene-warm) calc(var(--scene-lamp-glow, 0.6) * 22%),
+      transparent
+    )
+      45%,
+    transparent 80%
+  );
+  filter: blur(28px);
+}
+
+/*
+ * Steam columns. Three nested elements per column:
+ *   .steam       — absolute positioner (which column, where on x-axis)
+ *   .steamSway   — sine-wave horizontal sway (period 6–8s)
+ *   .steamRise   — vertical rise + opacity envelope (period 7–9s)
+ *
+ * The rise period is divided by --scene-steam-speed via calc() so higher
+ * energy = faster rise (capped at +30% per brief). The base periods are
+ * all ≥ 6s, so even at energy=1 the effective period stays above 4.6s,
+ * comfortably above AGENT_PROTOCOL §二 #7's 3s floor.
+ */
+.steam {
+  position: absolute;
+  bottom: 22%;
+  width: clamp(30px, 4vw, 60px);
+  height: clamp(280px, 42vh, 460px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: blur(22px);
+}
+
+.steamA {
+  left: 32%;
+}
+
+.steamB {
+  left: 50%;
+}
+
+.steamC {
+  left: 66%;
+}
+
+.steamSway {
+  position: absolute;
+  inset: 0;
+  animation: steamSway var(--steam-sway-period, 7s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.steamRise {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-steam-alpha, 0.4) * 75%),
+      transparent
+    )
+      45%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-steam-alpha, 0.4) * 100%),
+      transparent
+    )
+      75%,
+    color-mix(
+      in srgb,
+      var(--scene-accent) calc(var(--scene-steam-alpha, 0.4) * 50%),
+      transparent
+    )
+      92%,
+    transparent 100%
+  );
+  animation: steamRise calc(var(--steam-rise-period, 8s) / var(--scene-steam-speed, 1)) ease-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Per-column timing offsets. Negative animation-delay makes each column
+ * start at a different phase, so they never pulse together. */
+.steamA .steamSway { --steam-sway-period: 6s; animation-delay: -1.4s; }
+.steamA .steamRise { --steam-rise-period: 7s; animation-delay: -0.6s; }
+
+.steamB .steamSway { --steam-sway-period: 8s; animation-delay: -3.7s; }
+.steamB .steamRise { --steam-rise-period: 9s; animation-delay: -4.2s; }
+
+.steamC .steamSway { --steam-sway-period: 7s; animation-delay: -2.1s; }
+.steamC .steamRise { --steam-rise-period: 8s; animation-delay: -2.9s; }
+
+/*
+ * Table silhouette band. A wide dark strip sitting on the lower third,
+ * with top and bottom both feathered (transparent → ink → transparent)
+ * so it reads as "the edge of a table" rather than a solid bar.
+ * Drawn AFTER the steam so the columns appear to rise from the table.
+ */
+.table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 74%;
+  bottom: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--scene-ink) 70%, transparent) 8%,
+    color-mix(in srgb, var(--scene-ink) 85%, transparent) 45%,
+    color-mix(in srgb, var(--scene-ink) 75%, transparent) 92%,
+    transparent 100%
+  );
+}
+
+/* Vignette to focus center; mirrors the SceneSilence / SceneNameless envelope. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, var(--scene-ink) 100%);
+  opacity: var(--scene-vignette, 0.35);
+}
+
+/* Slow upward drift + fade. translateY moves the column up by ~32% of its
+ * own height each cycle; opacity envelope (0 → 1 → 0) lets the steam form
+ * and dissipate. Period is energy-modulated via the calc() in .steamRise. */
+@keyframes steamRise {
+  0% {
+    transform: translateY(8%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-32%);
+    opacity: 0;
+  }
+}
+
+/* Gentle horizontal sway — amplitude ~6px, period 6–8s per column. */
+@keyframes steamSway {
+  0% {
+    transform: translateX(-6px);
+  }
+  100% {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Freeze both rise + sway. The steam columns stay rendered at their
+   * resting position so the frame still reads as "kitchen / steam", just
+   * without motion. Energy-driven brightness / alpha still apply because
+   * they're React-pushed CSS vars, not keyframes. */
+  .steamSway,
+  .steamRise {
+    animation: none;
+  }
+}

@@ -3,7 +3,7 @@ import { SongLoader } from '@/engine/SongLoader';
 import { listSongIds } from '@/engine/songs';
 import { Preview } from '@/preview/Preview';
 
-const FALLBACK_SONG = 'seeing-farthest';
+const FALLBACK_SONG = 'yi-zhi-hen-an-jing';
 
 export default function App() {
   const route = useHashRoute();

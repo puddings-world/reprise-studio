@@ -1,0 +1,22 @@
+{
+  "title": "一葷一素",
+  "sections": [
+    { "t": 0.0,    "end": 26.95,  "type": "intro",       "mood": "still" },
+    { "t": 26.95,  "end": 54.46,  "type": "verse1",      "mood": "soft"  },
+    { "t": 54.46,  "end": 85.19,  "type": "verse2",      "mood": "soft"  },
+    { "t": 85.19,  "end": 140.0,  "type": "chorus1",     "mood": "ache"  },
+    { "t": 140.0,  "end": 163.64, "type": "solo",        "mood": "still" },
+    { "t": 163.64, "end": 189.25, "type": "pre_chorus",  "mood": "soft"  },
+    { "t": 189.25, "end": 240.0,  "type": "chorus2",     "mood": "ache"  },
+    { "t": 240.0,  "end": 256.0,  "type": "chorus_last", "mood": "ache"  },
+    { "t": 256.0,  "end": 315.0,  "type": "outro",       "mood": "fin"   }
+  ],
+  "cues": [
+    { "t": 26.95,  "type": "flash-warm",   "label": "第一句「日出又日落」進入" },
+    { "t": 85.19,  "type": "color-flip",   "label": "副歌「月兒明 風兒輕」" },
+    { "t": 140.0,  "type": "iris-close",   "label": "副歌結束進入 solo 停白" },
+    { "t": 163.64, "type": "flash-warm",   "label": "人聲回歸「太年輕的人」" },
+    { "t": 240.0,  "type": "iris-open",    "label": "尾段最後「一定是你來時太小心」展開" },
+    { "t": 249.35, "type": "shake-subtle", "label": "「怕我再想起你」情緒裂縫" }
+  ]
+}

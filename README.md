@@ -1,10 +1,15 @@
 # Reprise Studio
 
-**精緻翻唱 Lyric MV 的生產系統。**
-輸入一份已對齊的（音檔 + 歌詞 timeline）資料集，輸出一支抒情抽象風格、可交付到 YouTube 的 Lyric MV。
+**個人翻唱歌手的視覺/動畫工作室。**
 
-這個 repo **只做視覺層**。資料層（音源、歌詞校對、段落標註）假設已經在另一個 repo 裡做完，
-以 `timeline.json` 的形式交付過來。見下方的「資料集契約」一節。
+輸入是一首歌的 **song_id**（音檔與對齊好的歌詞時間軸早就在 dataset 裡備齊了），輸出是抒情抽象風格、可上 YouTube 的 Lyric MV — 瀏覽器即時預覽，Remotion 出 MP4。
+
+職責邊界（這條請當作硬規則）：
+
+- **Dataset (`MandpopDataPipeline`，本地 `D:\MandpopDataset`)**：負責所有 labeled data — 音源處理、人聲/伴奏分離、歌詞時間對齊、段落 / cue 標註。**本 repo 不碰這些。**
+- **本 repo (`reprise-studio`)**：拿到對齊資料後，**純做視覺與動畫設計**。不處理音訊、不校對歌詞、不調時間戳。
+
+對齊歌詞、剪音檔、跑語音分離、改 LRC 時間 — 全部回 dataset repo 修。在這邊只做「畫面怎麼漂亮」。
 
 ---
 
@@ -39,23 +44,65 @@ npm run remotion:render
 
 ## 資料集契約（Dataset Contract）
 
-本 repo **不處理音檔分離、歌詞對齊、段落標註**。這些工作請在另外的資料 repo 完成，
-並交付一份符合下列 schema 的 `timeline.json`。Schema 的權威定義在：
+Dataset (`MandpopDataPipeline`) 是 labeled data 的**唯一產地**：
 
-- TypeScript 型別：`src/engine/types.ts`
-- 範例：`examples/timeline.example.json`
-- 欄位規範：見下表
+- GitHub: <https://github.com/GeniusPudding/MandpopDataPipeline>
+- 本地預設：`D:\MandpopDataset`（可用環境變數 `MANDPOP_DATASET` 覆寫）
+
+### 權威介面：`processed_dataset.jsonl`
+
+Dataset 對外的 catalog 是 `<MANDPOP_DATASET>/processed_dataset.jsonl` — 每一行是一首通過 **alignment gate**（Layer 1 VAD + Layer 2 WhisperX，verdict ∈ `{ok, fixed}`）的歌。本 repo 只認這個檔案裡的歌；沒在裡面的歌請先回 dataset repo 跑 `python pipeline.py add` / `audit`。
+
+每筆 record 提供：
+
+| 欄位 | 內容 |
+|---|---|
+| `title` / `artist` / `lyricist` / `composer` / `album` | 中繼資料 |
+| `youtube_url` | 來源 |
+| `files.instrumental` | `songs/<title>/instrumental.m4a`（AAC 192k，consumer-ready） |
+| `files.lyrics` | `songs/<title>/lyrics.lrc`（alignment-verified） |
+
+dataset 的 `songs/<title>/` 資料夾額外有 `original.mp3`（含人聲的 YouTube 原檔）— intake 也會搬過來給設計階段預覽用。注意：dataset 跑過 `pipeline.py compact` 後 `original.mp3` 會被刪除（可從 youtube_url 重抓）；intake 遇到缺檔會警告並繼續，已搬過的本地拷貝不受影響。
+
+### 雙音檔策略
+
+| 本 repo 檔名 | 來源 | 用途 |
+|---|---|---|
+| `public/audio/<song-id>.mp3` | dataset `original.mp3` | **設計預覽** — 帶人聲，方便對情緒與 cue 落點 |
+| `public/audio/<song-id>.m4a` | dataset `instrumental.m4a` | **錄音/翻唱** — 純伴奏，使用者要錄自己的 cover 時播這個 |
+
+`SongConfig.audioSrc` 預設指 mp3、`audioInstrumentalSrc` 指 m4a。前端 toggle 切換預計後續加。
+
+### 本 repo 在 timeline 上補的東西
+
+Dataset 給「**有時間軸的歌詞行**」；本 repo 補：
+
+- **`sections[]`** — 段落邊界（intro / verse1 / chorus1 / bridge / ...）+ mood
+- **`cues[]`** — 視覺特效時間點（flash-cold / color-flip / iris-open / ...）
+- **`lyrics[i].end`** — 每句結束時間（dataset 只給開始時間）
+
+sections / cues 是視覺設計決策，人工填在每首歌自己的 `data/songs/<song-id>/curation.json`（intake 找不到會自動 scaffold 模板並停下）。長期目標：搬進 dataset 變成 first-class 輸出（提案見 dataset repo 的 `PROPOSAL_ALIGNMENT_EXPORT.md`）。
+
+Intake 同時做兩件品質工作：
+
+- **Alignment doctor** — 用 ffmpeg `silencedetect` 掃 dataset 的 `vocals.flac` 找人聲 onset：(1) 砍掉 onset 之前的 credit 行（不依賴字面，比字首黑名單可靠）；(2) 第一句歌詞若**早於** onset 超過 0.5s 就警告（這代表上游對齊有問題，回 dataset 重跑 audit，不要改 timeline）。結果記在 `timeline.meta.alignment`。
+- **能量曲線** — 從本地音檔預算 20Hz RMS 存成 `data/songs/<song-id>/energy.json`，給 Remotion 渲染（無法用即時 AnalyserNode）和 scrubber 模式用。
+
+Schema 權威定義在 `src/engine/types.ts` 與 `examples/timeline.example.json`。
 
 ### 必備資產（per 歌）
 
 ```
 data/songs/<song-id>/
-├── timeline.json    # 來自資料 repo，入 git
-├── config.ts        # 本 repo 寫：section → scene 對應、palette 引用
-└── notes.md         # 本 repo 寫：設計意圖
+├── curation.json    # 本 repo 寫：section 邊界 + mood + cue 點（intake 的輸入）
+├── timeline.json    # intake 從 dataset 產出，入 git
+├── energy.json      # intake 預算的 20Hz RMS 能量曲線，入 git
+├── config.ts        # 本 repo 寫：section → scene 對應、palette、雙音檔路徑
+└── notes.md         # 本 repo 寫：設計意圖、風格決策
 
 public/audio/
-└── <song-id>.mp3    # 播放用音檔（壓縮版即可）
+├── <song-id>.mp3    # original.mp3：設計預覽含人聲（gitignored）
+└── <song-id>.m4a    # instrumental.m4a：純伴奏給錄翻唱用（gitignored）
 ```
 
 ### Timeline JSON 規範
@@ -114,13 +161,23 @@ reprise-studio/
 
 ## 怎麼做一首新歌
 
-1. 從資料 repo 拉 `timeline.json`，放到 `data/songs/<song-id>/timeline.json`
-2. 把音檔放到 `public/audio/<song-id>.mp3`
-3. 複製 `docs/templates/song_template/` → `data/songs/<song-id>/config.ts` + `notes.md`
-4. 挑/調 palette：`src/theme/palettes/<song-id>.ts`
-5. 依 `docs/AGENT_PROTOCOL.md` 為每個 section 寫 Scene Brief，派 agent 實作
-6. 審收（AGENT_PROTOCOL §五 的驗收清單）
-7. 細修 → Remotion 輸出 MP4
+前提：歌已經在 dataset 裡，包含對齊好的音檔 + 歌詞時間。如果還沒，請先去 `MandpopDataPipeline` 跑流水線。
+
+1. **Intake**（一鍵從 dataset 搬進來）：
+
+   ```bash
+   node scripts/intake-from-mandpop.mjs <中文歌名> <kebab-song-id>
+   ```
+
+   第一次跑會 scaffold `data/songs/<song-id>/curation.json` 模板然後停下 —
+   聽預覽音檔填好 section 邊界（+ mood）和 cue 點再跑一次。第二次會：
+   跑 alignment doctor、產出 `timeline.json` / `energy.json` / `config.ts` /
+   `notes.md`，並把音檔 copy 到 `public/audio/`。
+2. 挑/調 palette：`src/theme/palettes/<song-id>.ts`
+3. 風格對談 → 寫進 `notes.md`（見 `CLAUDE.md` §新歌 intake §4）
+4. 依 `docs/AGENT_PROTOCOL.md` 為每個 section 寫 Scene Brief，派 agent 實作
+5. 審收（AGENT_PROTOCOL §五 的驗收清單）
+6. 細修 → Remotion 輸出 MP4
 
 每一步的詳細 SOP 見 `docs/WORKFLOW.md`。
 

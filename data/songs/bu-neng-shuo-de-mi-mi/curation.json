@@ -1,0 +1,23 @@
+{
+  "title": "不能說的秘密",
+  "sections": [
+    { "t": 0.0,    "end": 42.62,  "type": "intro",       "mood": "still" },
+    { "t": 42.62,  "end": 69.26,  "type": "verse1",      "mood": "soft"  },
+    { "t": 69.26,  "end": 93.96,  "type": "pre_chorus",  "mood": "soft"  },
+    { "t": 93.96,  "end": 155.0,  "type": "chorus1",     "mood": "ache"  },
+    { "t": 155.0,  "end": 175.83, "type": "solo",        "mood": "still" },
+    { "t": 175.83, "end": 202.49, "type": "verse2",      "mood": "soft"  },
+    { "t": 202.49, "end": 227.24, "type": "bridge",      "mood": "ache"  },
+    { "t": 227.24, "end": 290.0,  "type": "chorus_last", "mood": "open"  },
+    { "t": 290.0,  "end": 336.0,  "type": "outro",       "mood": "fin"   }
+  ],
+  "cues": [
+    { "t": 42.62,  "type": "flash-warm",   "label": "第一句「冷咖啡離開了杯墊」" },
+    { "t": 69.26,  "type": "color-flip",   "label": "「最美的不是下雨天」記憶湧現" },
+    { "t": 93.96,  "type": "iris-open",    "label": "副歌「你說把愛漸漸放下會走更遠」" },
+    { "t": 155.0,  "type": "iris-close",   "label": "副歌收尾進入鋼琴 solo" },
+    { "t": 175.83, "type": "flash-warm",   "label": "第二段「冷咖啡離開了杯墊」" },
+    { "t": 227.24, "type": "static-burst", "label": "最後副歌：最大時間裂縫" },
+    { "t": 280.51, "type": "shake-subtle", "label": "「要我怎麼撿」碎片散落" }
+  ]
+}
