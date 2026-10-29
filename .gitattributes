@@ -1,3 +1,8 @@
 # Shell scripts must keep LF so they run on Linux/macOS even when checked out on Windows.
 *.sh text eol=lf
 *.ps1 text eol=crlf
+# videogen files are LF everywhere (Python writes CRLF on Windows unless told otherwise).
+tools/videogen/** text=auto eol=lf
+data/videogen/** text=auto eol=lf
+# Later lines win: PowerShell scripts under videogen stay CRLF.
+tools/videogen/**/*.ps1 text eol=crlf
