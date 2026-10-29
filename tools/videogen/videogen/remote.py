@@ -60,15 +60,17 @@ def bundle(cfg: dict, host: dict, argv: list[str], dest: Path) -> list[str]:
     shutil.copytree(PACKAGE_DIR, dest / "videogen", ignore=shutil.ignore_patterns("__pycache__"))
     proj = Path(cfg["project_dir"])
     (dest / "project").mkdir(parents=True)
-    for name in PROJECT_FILES:
-        shutil.copy(proj / name, dest / "project" / name)
+    for name in PROJECT_FILES:  # a new project may not have a storyboard yet (character design comes first)
+        if (proj / name).exists():
+            shutil.copy(proj / name, dest / "project" / name)
     # Upload path assets unless the host profile already points at its own copy.
-    for key in ("character", "lyrics_ass", "source_video", "audio"):
-        if key in cfg and key not in host.get("paths", {}) and not Path(cfg[key]).is_absolute():
-            src = proj / cfg[key]
-            if src.exists() and src.stat().st_size < host.get("upload_limit_mb", 50) * 1e6:
-                (dest / "project" / cfg[key]).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy(src, dest / "project" / cfg[key])
+    rel = [cfg[k] for k in ("character", "lyrics_ass", "source_video", "audio") if k in cfg and k not in host.get("paths", {})]
+    rel += cfg.get("character_design", {}).get("refs", [])
+    for name in rel:
+        src = proj / name
+        if not Path(name).is_absolute() and src.exists() and src.stat().st_size < host.get("upload_limit_mb", 50) * 1e6:
+            (dest / "project" / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, dest / "project" / name)
     state = Path(cfg["workdir"]) / "state.json"
     if state.exists():
         shutil.copy(state, dest / "state.json")

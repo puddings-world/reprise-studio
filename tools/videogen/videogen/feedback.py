@@ -8,6 +8,8 @@ Canonical format, one directive per line (the review pages produce it):
     edit-off S04
     note S05: keep this but warmer
 
+The character stage uses the pseudo shot `character` (`pick character=B_s2`, `redo character: older`).
+
 Also accepted: the first review page's legacy form `選圖 {"S01": 1, ...}` followed by
 `S16：note` lines under `重畫/備註：`.
 """
@@ -29,7 +31,7 @@ class Feedback:
     edit_off: set[str] = field(default_factory=set)
 
 
-SHOT = r"(S\d+[A-Za-z]?)"
+SHOT = r"(S\d+[A-Za-z]?|character)"
 SEP = r"\s*[:：]\s*"
 
 
@@ -78,7 +80,7 @@ def apply(fb: Feedback, state: State) -> list[str]:
     for sid, pick in fb.picks.items():
         if sid in fb.redo:
             continue
-        if fb.stage == "keyframes":
+        if fb.stage in ("keyframes", "character"):
             state.set_pick(sid, pick if pick.endswith(".png") else _candidate_name(state, sid, pick))
             log.append(f"{sid}: pick {state.shot(sid)['pick']}")
     for sid in fb.edit_off:
@@ -86,6 +88,9 @@ def apply(fb: Feedback, state: State) -> list[str]:
         state.shot(sid)["clip"] = None
         log.append(f"{sid}: use the unedited image")
     for sid, note in fb.redo.items():
+        if fb.stage == "storyboard":  # the storyboard is text: a redo is a note for whoever edits it
+            fb.notes.setdefault(sid, note)
+            continue
         state.request_redo(sid, fb.stage, note)
         log.append(f"{sid}: redo {fb.stage}" + (f" ({note})" if note else ""))
     for sid, note in fb.notes.items():

@@ -10,7 +10,7 @@ from pathlib import Path
 
 EMPTY_SHOT = {"candidates": [], "pick": None, "edit": None, "use_edit": True, "clip": None,
               "redo": None, "notes": []}
-STAGES = ("keyframes", "edit", "clips")
+STAGES = ("character", "storyboard", "keyframes", "edit", "clips")
 
 
 class State:

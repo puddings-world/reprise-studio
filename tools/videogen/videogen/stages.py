@@ -18,6 +18,7 @@ import numpy as np
 
 from . import config, media
 from . import storyboard as sbmod
+from .draft import todos
 from .prompts import Prompts
 from .state import State
 
@@ -27,10 +28,30 @@ class Project:
         self.cfg = cfg
         self.dir = Path(cfg["project_dir"])
         self.work = Path(cfg["workdir"])
-        self.sb = sbmod.load(self.dir / "storyboard.json")
-        self.prompts = Prompts(json.loads((self.dir / "prompts.json").read_text(encoding="utf-8")))
+        # A new project has neither file yet: `videogen character` and `videogen storyboard` come first.
+        sb_file, prompts_file = self.dir / "storyboard.json", self.dir / "prompts.json"
+        self.sb = sbmod.load(sb_file) if sb_file.exists() else {"version": 1, "shots": []}
+        self.prompts = Prompts(json.loads(prompts_file.read_text(encoding="utf-8")) if prompts_file.exists() else {})
         self.state = State(self.work / "state.json")
         self.fps = cfg["fps"]
+
+    def todos(self, only: list[str] | None = None) -> list[str]:
+        """Text the author still has to write for these shots (all shots when `only` is None)."""
+        shots = [s for s in self.shots() if only is None or s["id"] in only]
+        ids = {s["id"] for s in shots}
+        d = self.prompts.d
+        keys = ["style", "vars"]
+        if any(s["kind"] == "perform" for s in shots):
+            keys += ["framing", "perform_ref", "perform_motion"]
+        common = {k: d[k] for k in keys if k in d}
+        return (todos(common, "prompts")
+                + todos({s["id"]: s for s in shots}, "storyboard")
+                + todos({k: v for k, v in d.get("shots", {}).items() if k in ids}, "prompts.shots"))
+
+    def require_written(self, only: list[str] | None = None) -> None:
+        left = self.todos(only)
+        if left:
+            raise SystemExit("write these first (they still say TODO):\n  " + "\n  ".join(left))
 
     def path(self, key: str) -> Path:
         return config.resolve(self.cfg, key)
@@ -39,8 +60,11 @@ class Project:
         return sbmod.select(self.sb["shots"], only, kinds)
 
     def problems(self) -> list[str]:
+        if not (self.dir / "storyboard.json").exists():
+            return ["storyboard.json missing: run `videogen storyboard --lyrics FILE`"]
         out = sbmod.validate(self.sb, self.cfg.get("crops"))
         out += [f"{sid}: no prompts.json entry" for sid in self.prompts.missing(self.sb["shots"])]
+        out += [f"still TODO: {t}" for t in self.todos()]
         for key in ("source_video", "character", "lyrics_ass"):
             if key in self.cfg and not self.path(key).exists():
                 out.append(f"{key}: {self.path(key)} does not exist")
@@ -66,6 +90,7 @@ def keyframes(p: Project, only=None, seeds: list[int] | None = None) -> list[str
     todo = [s for s in p.shots(only) if s["id"] in p.state.pending(p.shots(only), "keyframes") or only]
     if not todo:
         log("keyframes: nothing pending"); return []
+    p.require_written([s["id"] for s in todo])
     seeds = seeds or p.cfg["seeds"]
     w, h = p.cfg["work_size"]
     char = Image.open(p.path("character")).convert("RGB")
@@ -145,6 +170,7 @@ def clips(p: Project, only=None, kinds=None) -> list[str]:
     from .models import AnimateModel, I2VModel, free_memory
 
     shots = p.shots(only, kinds)
+    p.require_written([s["id"] for s in shots])
     pending = set(p.state.pending(shots, "clips"))
     todo = [s for s in shots if s["id"] in pending and p.state.image_for(s["id"])]
     made = []

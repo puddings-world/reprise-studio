@@ -1,11 +1,13 @@
 # videogen
 
-Turns a cover-song performance video and a lyrics storyboard into an anime MV. It is a semi-automatic loop:
+Turns a cover-song performance video and its timed lyrics into an anime MV. It is a semi-automatic loop:
 every stage generates candidates, writes a review page, and regenerates only the shots you reject.
 
 ```mermaid
 flowchart LR
-  SB[storyboard.json<br/>prompts.json] --> K[keyframes]
+  I[init<br/>video or audio] --> CH[character] --> RCH{{review}} -->|pick| SB
+  L[(timed lyrics<br/>.lrc .ass .srt)] --> SB[storyboard<br/>draft + TODOs]
+  SB -->|author writes TODOs| RSB{{review storyboard}} --> K[keyframes]
   K --> RK{{review page}} -->|feedback| K
   RK --> E[edit<br/>optional expression pass] --> RE{{review}} -->|feedback| E
   RE --> C[clips<br/>Animate-2 / TI2V] --> RC{{review}} -->|feedback| C
@@ -29,7 +31,7 @@ bash tools/videogen/scripts/setup.sh          # Linux/macOS (GPU stack, CUDA 12.
 # A machine that only reviews and assembles:  setup.sh --cpu  /  setup.ps1 -Cpu
 ```
 
-Setup ends by running the test suite (`67 passed`). Then check a project:
+Setup ends by running the test suite (`89 passed`). Then check a project:
 
 ```bash
 videogen --project data/videogen/alaska doctor
@@ -49,13 +51,14 @@ videogen --project data/videogen/alaska doctor
 
 ## Workflow: from song to upload
 
-These are the phases of the whole job. Phases 1 and 2 are still done by hand with Claude; `videogen` runs
-phases 3 to 8. Each ◆ marks a point where the owner decides.
+These are the phases of the whole job. `videogen` runs all of them. In phase 1 it drafts only the mechanical
+part (timing, sections, a kind rhythm) and marks every creative decision `TODO`; Claude and the owner write
+those. Each ◆ marks a point where the owner decides.
 
 | # | Phase | Who / what | Output | Owner checkpoint |
 |---|---|---|---|---|
-| 1 | **Storyboard from the lyrics.** Split the song into 3–10 s shots that follow the lyric lines. Give each one a kind (`perform` / `story` / `image`), a light key (night, amber, dawn, gold, rose, lamp) and a transition. About half the time should be imagery and story, not the singer. | Claude + owner | `storyboard.json`, `prompts.json` | ◆ storyboard page |
-| 2 | **Character design.** Draw several outfits and face variants from stills of the performance, then pick one. It does not need to look like the singer; it needs to stay the same character in every shot. | Qwen-Image-Edit-2509 | `assets/character.png` | ◆ pick one |
+| 1 | **Storyboard from the lyrics.** `videogen storyboard` cuts the song into 2–8 s shots that follow the lyric lines, finds instrumental breaks and repeated choruses, and alternates shot kinds (`perform` / `story` / `image`). Claude and the owner then write each shot's image, motion and light, and change kinds where the lyric asks for it. About half the time should be imagery and story, not the singer. | `videogen storyboard`, then Claude + owner | `storyboard.json`, `prompts.json`, `assets/lyrics.ass` | ◆ `review storyboard` |
+| 2 | **Character design.** Portraits per outfit × seed, from text or from photos (`character_design.refs`). It does not need to look like the singer; it needs to stay the same character in every shot. | `videogen character` (Qwen-Image-2.1, or Edit-2509 with photos) | `assets/character.png` | ◆ `review character` |
 | 3 | **Keyframes.** Two candidates per shot. A perform shot redraws a source frame as the character; story and image shots are drawn from prompts. | `videogen keyframes` | `work/keys/` | ◆ `review keyframes` |
 | 4 | **Expression pass (optional).** Adjusts the mood of shots where the face is visible. | `videogen edit` | `work/keys/*_edit*.png` | ◆ `review edit` |
 | 5 | **Animation.** Perform shots copy the singer's motion; story and image shots animate their keyframe. | `videogen clips` | `work/clips/` | ◆ `review clips` |
@@ -74,10 +77,50 @@ Rules that came out of the first MV (阿拉斯加海灣), already written into i
 - Melancholy reads deeper without tears. The edit prompt and every negative prompt exclude tears and crying.
 - The expression edit must keep exactly what the hands hold. Otherwise it may add a microphone to a story shot.
 
+## Start a new song
+
+```bash
+P=data/videogen/<song>
+videogen --project $P init --title "歌名" --video take.mp4      # or --audio song.m4a without a performance
+```
+
+```
+wrote data/videogen/<song>/project.json
+wrote data/videogen/<song>/prompts.json
+wrote data/videogen/<song>/assets/source.mp4
+next: describe the protagonist in prompts.json (vars.HE_DESIGN, character.outfits), then `videogen character`
+```
+
+1. **Crops.** With a video, set `crops` in project.json to the 16:9 parts of the frame to use for perform
+   shots (fractions; keep burned-in subtitles out). `init` writes the whole frame as `medium`.
+2. **Character.** Write `vars.HE_DESIGN` and `character.outfits` in prompts.json, then
+   `videogen character` (portraits per outfit × `character_design.seeds`) and `videogen review character`.
+   Picking one through `videogen feedback` copies it to `assets/character.png`. A redo note draws every
+   outfit again with fresh seeds.
+3. **Storyboard.** `videogen storyboard --lyrics song.lrc` (`.ass` and `.srt` work too; `--offset` shifts a
+   dataset LRC to the cover's timing). It writes `storyboard.json`, prompt stubs, and `assets/lyrics.ass`,
+   and prints the rhythm:
+
+   ```
+   verse1        0.0–  16.6s   4 shots  PSPS
+   chorus1      16.6–  26.8s   3 shots  PSP
+   interlude    64.5–  80.5s   3 shots  III
+   47 shots drafted (P perform, S story, I image). Next: write every TODO ...
+   ```
+
+4. **Write the TODOs.** Every creative field says `TODO` until someone writes it: `vars.HE` and the
+   outfit vars, `perform_motion`, and per shot `light_prompt`, `keyframe` and `motion` (the stub carries the
+   lyric as a hint). `videogen doctor` lists what is left, and the GPU stages refuse to start until the
+   shots they need are written. `videogen review storyboard` shows the whole song as a coloured timeline and
+   every shot's plan, with a note box per shot.
+
+Re-running `videogen storyboard --force` redrafts the timing and keeps every prompts.json entry already
+written. Tune the draft with `draft` in project.json (below).
+
 ## Make an MV
 
 Run each stage from the repo root with `--project data/videogen/<song>`. Add `--host <name>` to run the GPU
-stages (`keyframes`, `edit`, `clips`) somewhere else.
+stages (`character`, `keyframes`, `edit`, `clips`, `cover`) somewhere else.
 
 1. **Keyframes.** `videogen keyframes` draws two candidates (`seeds`) for every shot that has none yet.
 2. **Review.** `videogen review keyframes` writes `work/review/keyframes.html`. Pick an image per shot,
@@ -118,6 +161,10 @@ note S05: keep, slightly warmer
 edit-off S04            # edit stage: keep the unedited image
 ```
 
+The character page uses the pseudo shot `character` (`pick character=A_s2`, `redo character: older`). The
+storyboard page sends notes only: a storyboard is text, so its feedback is recorded for whoever edits the
+JSON and never queues a GPU redo.
+
 Picking a different image clears that shot's edit and clip. Asking for a keyframe redo clears its edit and
 clip too. Later stages pick the change up on their next run.
 
@@ -125,15 +172,18 @@ clip too. Later stages pick the change up on their next run.
 
 | Command | Options | What it does |
 |---|---|---|
-| `doctor` | | Checks project files, ffmpeg and Python packages, and prints the device and memory plan for each model |
+| `init` | `--title T` (required), `--video F`, `--audio F`, `--name N` | Creates project.json, prompts.json (with TODOs) and assets/ in `--project`; copies the media in |
+| `character` | `--outfits A B`, `--seeds 1 2 3` | Draws protagonist portraits per outfit × seed (GPU, works with `--host`) |
+| `storyboard` | `--lyrics F`, `--offset S`, `--duration S`, `--force` | Drafts storyboard.json and prompt stubs from timed lyrics and writes `assets/lyrics.ass` |
+| `doctor` | | Checks project files, unwritten TODOs, ffmpeg and Python packages, and prints the device and memory plan for each model |
 | `show-config` | | Prints the effective config after all layers are merged |
 | `status` | | Lists candidates, pick, edit, clip and pending redo for every shot |
 | `keyframes` | `--only S01 S05`, `--seeds 1 2` | Generates still candidates for pending shots (or the listed ones) |
 | `edit` | `--only` | Runs the expression pass on picked images of `face_shots` |
 | `clips` | `--only`, `--kinds perform story image` | Animates approved images |
 | `assemble` | `--out FILE` | Cuts the final MV |
-| `review` | `keyframes \| edit \| clips`, `--only` | Writes a self-contained review page to `work/review/<stage>.html` |
-| `feedback` | `--file F` (default: stdin) | Applies picks, redos, notes and `edit-off` |
+| `review` | `character \| storyboard \| keyframes \| edit \| clips`, `--only` | Writes a self-contained review page to `work/review/<stage>.html` |
+| `feedback` | `--file F` (default: stdin) | Applies picks, redos, notes and `edit-off`; a character pick becomes `assets/character.png` |
 | `cover` | `--seeds 1 2 3 4` | Generates cover art candidates (GPU, works with `--host`) |
 | `cover-title` | | Typesets the title and subtitle on every cover candidate (CPU) |
 | `attach` | with `--host` | Re-attaches to the last job sent to that host (after a closed terminal or dropped connection), streams its log, and syncs the results |
@@ -162,7 +212,9 @@ A new song needs only new data: a storyboard, prompts and assets. No code change
 | `source_video`, `audio` | Performance video (drives perform shots) and the audio muxed into the MV |
 | `character` | Character reference image (the approved character sheet) |
 | `lyrics_ass` | Lyrics subtitles. They are rescaled to the output size and restyled with `lyrics_style` |
-| `crops` | `{framing: [x0, y0, x1, y1]}` source-video crops as fractions, 16:9, kept above any burned-in subtitles |
+| `crops` | `{framing: [x0, y0, x1, y1]}` source-video crops as fractions, 16:9, kept above any burned-in subtitles. No crops (or no video) means the storyboard draft uses no perform shots |
+| `character_design` | `{size, seeds, refs}` for `videogen character`. Default `[1024, 1024]`, seeds `[1, 2, 3]`, no refs. With `refs` (photos, project-relative) the editor model redraws them |
+| `draft` | Storyboard draft rules: `min_shot` 2, `max_shot` 8, `min_gap` 4 (silence that becomes its own shot), `sec_per_char` 0.55 and `tail` 1.5 (how long a line is sung) |
 | `cover` | `{title, subtitle, side, font, size, seeds}`. `title` defaults to the project title. `side` is `left` or `right` |
 | `face_shots` | Shot ids where the protagonist's face is visible (the scope of `edit`) |
 | `hosts` | Execution hosts (below) |
@@ -186,6 +238,10 @@ defaults < project.json < host profile < environment < CLI.
 - `vars`: placeholders such as `{HE}` and `{COAT}`. A shot whose keyframe mentions `{HE}` gets the character
   image as a reference.
 - `framing`, `perform_ref`, `perform_motion`.
+- `character`: `sheet` (a template with `{outfit}` and any var, e.g. `{HE_DESIGN}`) and `outfits`.
+- `cover`: the cover art prompt.
+
+Any text containing `TODO` counts as unwritten. `init` and `storyboard` write TODOs; `doctor` lists them.
 - `expression_edit` and `face_mood`.
 - `shots.<id>.keyframe` and `shots.<id>.motion`.
 
@@ -267,13 +323,16 @@ The whole 3:43 MV took about 4 GPU-hours (part of it on a shared card), not coun
 - **Perform shots** render at 944×519 and are upscaled to 720p, so they are slightly softer than story shots.
 - **Prompt drift** can still happen: a story keyframe may show the character twice or add props. The
   review pages exist to catch this.
-- **Phases 1–2** (storyboard and character design) are not yet commands.
+- **The storyboard draft** only times and labels shots. Which lines deserve a story shot, the images and the
+  light are still written by Claude and the owner. Chorus detection needs a repeated pair of lines, so a
+  song whose chorus lines never repeat in order gets only verses.
+- **`videogen character`** has passed its unit tests but has not run on a GPU yet; the Alaska character
+  was made with the prototype script it replaces (same model and prompt shape).
 
 ### Next steps, in rough order of value
 
 1. **Character LoRA** trained on 20–40 approved images, for a tighter identity than reference images alone.
-2. **`videogen storyboard`** to draft `storyboard.json` and `prompts.json` from timed lyrics (the
-   MandpopDataset LRC), and **`videogen character`** for character sheets.
+2. **Dataset lookup** for `storyboard`: take the LRC straight from MandpopDataset by song title.
 3. **Audio-driven lip sync** for close-ups (InfiniteTalk or Wan2.2-S2V) instead of motion transfer.
 4. **First-and-last-frame I2V** (Wan2.2-I2V-A14B) for shots that must land on a specific end frame, plus
    matched cuts between shots.
@@ -302,6 +361,10 @@ needs hundreds of GB.
 | Module | Role |
 |---|---|
 | `config.py` | Layered config and host profiles |
+| `lyrics.py` | Reads LRC / ASS / SRT into timed lines; writes the burned-in `.ass` |
+| `draft.py` | Storyboard draft from timed lines: segments, sections, kind rhythm, prompt stubs, TODO scan |
+| `scaffold.py` | `init` and `storyboard` commands |
+| `character.py` | Character portraits, and installing the pick as the reference |
 | `storyboard.py` | Schema validation and frame math (gap-free spans, Wan `4k+1` frame counts) |
 | `prompts.py` | Builds every prompt from prompts.json |
 | `state.py` | `work/state.json`: candidates, picks, edits, clips, redo requests and their invalidation |
@@ -309,7 +372,7 @@ needs hundreds of GB.
 | `review.py` | Review pages (images inlined, works offline or as a shared page) |
 | `hardware.py` | Device probe and memory planning |
 | `models.py` | The four model roles (`image`, `edit`, `animate`, `i2v`), each behind a small `generate()` interface |
-| `stages.py` | `keyframes`, `edit`, `clips`, `assemble` |
+| `stages.py` | `keyframes`, `edit`, `clips`, `assemble`, and the TODO gate they share |
 | `remote.py` | Host bundling, job submission and result sync |
 | `media.py` | ffmpeg I/O and frame math |
 
@@ -323,8 +386,9 @@ python -m pytest -q tools/videogen/tests     # or: npm run videogen:test
 ```
 
 The tests cover config layering, storyboard validation and frame math, prompt building, state invalidation,
-feedback parsing (including the first review page's format), memory planning, media math, lyric restyling
-and review-page output. GPU stages are verified by running them. The Alaska pilot covered all three
+feedback parsing (including the first review page's format), memory planning, media math, lyric restyling,
+review-page output, lyric parsing (LRC / ASS / SRT), the storyboard draft, `init`, the TODO gate and the
+character pick. GPU stages are verified by running them. The Alaska pilot covered all three
 generators on a shared H100 with 38 GB free.
 
 ## Troubleshooting
@@ -336,5 +400,7 @@ generators on a shared H100 with 38 GB free.
 | Hugging Face download stalls mid-file | `HF_HUB_DISABLE_XET=1`, then rerun. Finished files are kept |
 | PyPI's torch rejects the CUDA driver | Rerun setup with `TORCH_INDEX_URL` set to the matching `cu12x` index |
 | Qwen-Image-2.1 expression edits look grainy or oversharpened | The `edit` role uses Qwen-Image-Edit-2509, which keeps the original rendering |
+| `write these first (they still say TODO)` | Write the listed fields in storyboard.json / prompts.json; `videogen doctor` shows the full list |
+| `storyboard.json already exists` | Pass `--force`. Written prompts.json entries are kept |
 | Lyrics are missing from the MV | ffmpeg needs libass (`ffmpeg -filters` lists `ass`). Set `VIDEOGEN_FFMPEG` to a full build |
 | Story clip drifts (he stands up, walks off) | Keep motion prompts small and static ("static camera, only his eyes move"). The I2V negative already lists those actions |

@@ -45,6 +45,21 @@ def probe_size(path: Path) -> tuple[int, int]:
     return size
 
 
+def parse_duration(banner: str) -> float | None:
+    """Seconds from ffmpeg's 'Duration: HH:MM:SS.xx' banner line."""
+    m = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", banner)
+    return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)) if m else None
+
+
+def probe_duration(path: Path) -> float:
+    err = subprocess.run([ffmpeg_exe(), "-hide_banner", "-i", str(path)], capture_output=True, text=True,
+                         encoding="utf-8", errors="replace").stderr
+    seconds = parse_duration(err)
+    if seconds is None:
+        raise SystemExit(f"could not read the duration of {path}; pass --duration")
+    return seconds
+
+
 def crop_box(crop: list[float], src_w: int, src_h: int) -> tuple[int, int, int, int]:
     """Fractional (x0, y0, x1, y1) -> even (w, h, x, y) pixels for ffmpeg's crop filter."""
     x0, y0, x1, y1 = crop

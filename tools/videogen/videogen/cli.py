@@ -1,6 +1,9 @@
 """`python -m videogen` — the semi-automatic cover-MV loop.
 
-    videogen doctor                         check project files, tools and the GPU plan
+    videogen init --title T --video V       start a project (or --audio A without a performance video)
+    videogen character                      protagonist portrait candidates (review, pick -> assets/character.png)
+    videogen storyboard --lyrics F.lrc      draft storyboard.json + prompt stubs from timed lyrics
+    videogen doctor                         check project files, tools, unwritten TODOs and the GPU plan
     videogen keyframes [--only S01 S05]     still candidates for pending shots
     videogen review keyframes               build the review page (work/review/keyframes.html)
     videogen feedback < pasted.txt          apply picks / redo notes from a review page
@@ -23,7 +26,8 @@ from pathlib import Path
 
 from . import config
 
-GPU_STAGES = ("keyframes", "edit", "clips", "cover")
+GPU_STAGES = ("character", "keyframes", "edit", "clips", "cover")
+DOCTOR_LIST = 15  # problems printed before the rest is summarised
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -32,6 +36,17 @@ def _parser() -> argparse.ArgumentParser:
     ap.add_argument("--host", default=os.environ.get("VIDEOGEN_HOST", "local"),
                     help="execution host from project.json `hosts` (default: local)")
     sub = ap.add_subparsers(dest="cmd", required=True)
+    i = sub.add_parser("init", help="create project.json, prompts.json and assets/ in --project")
+    i.add_argument("--title", required=True); i.add_argument("--name")
+    i.add_argument("--video", type=Path, help="performance recording (gives perform shots and the audio)")
+    i.add_argument("--audio", type=Path, help="song audio (alone, or to replace the video's sound)")
+    ch = sub.add_parser("character", help="protagonist portrait candidates (prompts.json `character`)")
+    ch.add_argument("--outfits", nargs="+"); ch.add_argument("--seeds", type=int, nargs="+")
+    sb = sub.add_parser("storyboard", help="draft storyboard.json and prompt stubs from timed lyrics")
+    sb.add_argument("--lyrics", type=Path, help=".lrc, .ass or .srt (default: project.json lyrics_ass)")
+    sb.add_argument("--offset", type=float, default=0.0, help="seconds added to every lyric time")
+    sb.add_argument("--duration", type=float, help="song length in seconds (default: measured from the audio)")
+    sb.add_argument("--force", action="store_true", help="replace an existing storyboard.json")
     sub.add_parser("doctor", help="check files, tools, GPU and the memory plan")
     sub.add_parser("show-config", help="print the effective config")
     sub.add_parser("status", help="per-shot progress table")
@@ -48,7 +63,8 @@ def _parser() -> argparse.ArgumentParser:
     a = sub.add_parser("assemble", help="cut the final MV")
     a.add_argument("--out", type=Path)
     r = sub.add_parser("review", help="build a review page for a stage")
-    r.add_argument("stage", choices=["keyframes", "edit", "clips"]); r.add_argument("--only", nargs="+")
+    r.add_argument("stage", choices=["character", "storyboard", "keyframes", "edit", "clips"])
+    r.add_argument("--only", nargs="+")
     f = sub.add_parser("feedback", help="apply feedback text (stdin or --file)")
     f.add_argument("--file", type=Path)
     w = sub.add_parser("_host-wrap", help=argparse.SUPPRESS)
@@ -63,6 +79,13 @@ def main(argv: list[str] | None = None) -> None:
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     args = _parser().parse_args(argv)
+    if args.cmd == "init":
+        from .scaffold import init
+        for path in init(args.project, args.title, args.name, args.video, args.audio):
+            print("wrote", path)
+        print("next: describe the protagonist in prompts.json (vars.HE_DESIGN, character.outfits), "
+              "then `videogen character`")
+        return
     cfg = config.load(args.project, args.host)
     host = cfg["hosts"][args.host]
 
@@ -84,12 +107,22 @@ def main(argv: list[str] | None = None) -> None:
         print(json.dumps(cfg, ensure_ascii=False, indent=1)); return
     if args.cmd == "doctor":
         return _doctor(cfg)
+    if args.cmd == "storyboard":
+        from .scaffold import storyboard, summary
+        sb = storyboard(cfg, args.lyrics, args.offset, args.duration, args.force)
+        print(summary(sb))
+        print(f"{len(sb['shots'])} shots drafted (P perform, S story, I image). Next: write every TODO in "
+              "storyboard.json and prompts.json, then `videogen review storyboard`")
+        return
 
     from .stages import Project
     p = Project(cfg)
     if args.cmd == "status":
         return _status(p)
-    if args.cmd == "keyframes":
+    if args.cmd == "character":
+        from .character import generate
+        generate(p, args.outfits, args.seeds)
+    elif args.cmd == "keyframes":
         from .stages import keyframes
         keyframes(p, args.only, args.seeds)
     elif args.cmd == "edit":
@@ -113,9 +146,15 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "feedback":
         from .feedback import apply, parse
         text = args.file.read_text(encoding="utf-8") if args.file else sys.stdin.read()
-        for line in apply(parse(text), p.state):
+        fb = parse(text)
+        for line in apply(fb, p.state):
             print(line)
         p.state.save()
+        if fb.stage == "character" and fb.picks and not fb.redo:
+            from .character import install
+            print("character reference ->", install(p))
+            if any(p.state.shot(s["id"])["candidates"] for s in p.shots()):
+                print("note: existing keyframes used the previous character; redo the ones that show it")
 
 
 def _doctor(cfg: dict) -> None:
@@ -127,8 +166,10 @@ def _doctor(cfg: dict) -> None:
         problems = Project(cfg).problems()
     except SystemExit as e:
         problems = [str(e)]
-    for msg in problems:
+    for msg in problems[:DOCTOR_LIST]:
         print("  ✗", msg); ok = False
+    if len(problems) > DOCTOR_LIST:
+        print(f"  … {len(problems) - DOCTOR_LIST} more")
     print("  ✓ project files" if not problems else "")
     try:
         print("  ✓ ffmpeg:", media.ffmpeg_exe())

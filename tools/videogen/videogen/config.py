@@ -89,7 +89,8 @@ def load(project_dir: Path, host: str = "local", cli: dict | None = None,
     """
     project_file = project_dir / "project.json"
     if not project_file.exists():
-        raise SystemExit(f"{project_file} not found. Create one with `videogen init {project_dir}`.")
+        raise SystemExit(f"{project_file} not found. Create one with "
+                         f"`videogen --project {project_dir} init --title TITLE --video FILE`.")
     cfg = deep_merge(DEFAULTS, json.loads(project_file.read_text(encoding="utf-8")))
     if host not in cfg["hosts"]:
         raise SystemExit(f"unknown host '{host}'; defined hosts: {', '.join(cfg['hosts'])}")

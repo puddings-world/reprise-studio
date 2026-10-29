@@ -104,8 +104,8 @@ def art(p, seeds: list[int] | None = None) -> list[str]:
     from .stages import _device, log
     c = settings(p.cfg)
     text = p.prompts.d.get("cover")
-    if not text:
-        raise SystemExit("prompts.json has no `cover` prompt")
+    if not text or "TODO" in text:
+        raise SystemExit("write the `cover` prompt in prompts.json first")
     prompt = p.prompts._fill(text) + " " + p.prompts.d["style"]
     images = [Image.open(p.path("character")).convert("RGB")] if "{" + p.prompts.char_var + "}" in text else None
     model = ImageModel(p.cfg["models"]["image"], "image", _device())

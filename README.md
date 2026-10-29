@@ -55,8 +55,9 @@ videogen --project data/videogen/alaska doctor
 
 | # | 階段 | 怎麼做 | 你要決定的 |
 |---|---|---|---|
-| 1 | 依歌詞設計分鏡 | 和 Claude 討論，產出 `storyboard.json` + `prompts.json` | 分鏡表 |
-| 2 | 角色設定 | 從演出截圖畫幾種服裝、臉型 | 選一個主角 |
+| 0 | 開專案 | `videogen init --title 歌名 --video 演出.mp4` | |
+| 1 | 角色設定 | `videogen character`：每種服裝 × 幾個種子各畫一張 | 選一個主角 |
+| 2 | 依歌詞設計分鏡 | `videogen storyboard --lyrics 歌詞.lrc` 自動切鏡、標段落；每鏡的畫面、動態、光線由 Claude 和你一起寫（標 TODO 的欄位） | `review storyboard` 審分鏡表 |
 | 3 | 關鍵幀 | `videogen keyframes` | 每鏡選圖或退件 |
 | 4 | 表情調整（可選） | `videogen edit` | 原圖或調整後 |
 | 5 | 動畫 | `videogen clips`：演唱鏡頭由原影片動作驅動（Wan-Animate-2），故事 / 意象鏡頭用圖生影片（Wan2.2-TI2V-5B） | 每段可退件 |
