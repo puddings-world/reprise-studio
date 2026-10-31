@@ -72,6 +72,13 @@ videogen --project data/videogen/alaska doctor
 
 ---
 
+## 翻唱錄音（規劃中）
+
+另一半工作：用 dataset 的伴奏在 Mac 的 Logic Pro 錄翻唱，再把混音、人聲 stem 和演出影片帶回本 repo 給兩條視覺產線用。
+目前只有規劃，尚未實作。分期（R0 Mac 環境、R1 錄音 kit、R2 Logic 範本、R3 演出影片、R4 匯回與對齊）、待決事項和「在 Mac 上從哪開始」見 [`docs/RECORDING.md`](docs/RECORDING.md)。
+
+---
+
 ## 資料集契約（Dataset Contract）
 
 Dataset (`MandpopDataPipeline`) 是 labeled data 的**唯一產地**：

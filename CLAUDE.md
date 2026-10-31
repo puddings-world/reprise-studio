@@ -280,6 +280,7 @@ npm run intake -- --title "看得最遠的地方" --audio "C:/path/to/audio.wav"
 
 ## 特別提醒
 
+- 翻唱錄音（Logic Pro，Mac）是規劃中的第二條工作線，見 `docs/RECORDING.md`。動工前先請使用者回答其中「Decisions for the owner」，尤其是本 repo 職責是否擴到錄音工具
 - 歌詞對齊失敗，**優先檢查**：timeline JSON 是否符合 schema、音檔是否載入完成、`currentTime` 是否被動畫邏輯覆寫
 - 新 scene 前先看 `docs/DESIGN.md` §四「Scene 設計原則」避免 AI slop
 - 中文字體很重要，預設 Noto Serif TC + Cormorant Garamond 斜體，要換必須在 `DESIGN.md` 討論
